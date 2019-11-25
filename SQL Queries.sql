@@ -22,7 +22,7 @@ CREATE TABLE PubItems
 	ItemType VARCHAR(5), -- either snack or drink therefore cannot be more than 5 letters and dosen't need to be unicode
 	ItemPrice DECIMAL(10,2) NOT NULL, --allow 2 digits to the right of the decimal and 10 to the left 000000000.00
 	--ItemImagePath IMAGE ?????
-	ItemDescription NVARCHAR(MAX) NOT NULL,
+	ItemDescription NVARCHAR(MAX),
 	ItemStock INT,
 	ItemOnSale BOOL,
 	CONSTRAINT PK_PubItems PRIMARY KEY (ItemID)
