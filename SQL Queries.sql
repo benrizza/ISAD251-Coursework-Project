@@ -24,7 +24,7 @@ CREATE TABLE PubItems
 	--ItemImagePath IMAGE ?????
 	ItemDescription NVARCHAR(MAX),
 	ItemStock INT,
-	ItemOnSale BOOL,
+	ItemOnSale BIT,
 	CONSTRAINT PK_PubItems PRIMARY KEY (ItemID)
 );
 
