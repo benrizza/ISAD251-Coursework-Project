@@ -10,7 +10,7 @@ CREATE TABLE PubOrderItems
 (
 	OrderID INT NOT NULL,
 	ItemID INT NOT NULL,
-	ItemQuantitiy DATE NOT NULL,
+	ItemQuantitiy INT NOT NULL,
 		CHECK(ItemQuantity <> 0),
 	CONSTRAINT PK_PubOrderItems PRIMARY KEY (OrderID, ItemID)
 );
