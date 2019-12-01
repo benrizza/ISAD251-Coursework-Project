@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Ben\\source\\repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {}
+    "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Ben\\source\\repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {
+    "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Ben\\source\\repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
+        "projectUniqueName": "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
         "projectName": "PubApplication",
-        "projectPath": "C:\\Users\\Ben\\source\\repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
+        "projectPath": "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
         "packagesPath": "C:\\Users\\Ben\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Ben\\source\\repos\\ISAD251-Coursework-Project\\PubApplication\\obj\\",
+        "outputPath": "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
