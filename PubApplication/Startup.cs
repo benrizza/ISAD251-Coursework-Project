@@ -15,19 +15,24 @@ namespace PubApplication
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<ISAD251_BRizzaContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ISAD251_DB")));
+            //TESTING THIS
+
+            //HMM???
+            services.AddSession();
+
+            services.AddDbContext<ISAD251DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ISAD251_DB")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +48,7 @@ namespace PubApplication
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseSession();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

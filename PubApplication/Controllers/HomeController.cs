@@ -20,11 +20,16 @@ namespace PubApplication.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.returnController = ControllerContext.RouteData.Values["controller"].ToString();
+            ViewBag.returnAction = ControllerContext.RouteData.Values["action"].ToString();
+            System.Diagnostics.Debug.WriteLine(ControllerContext.RouteData.Values["controller"].ToString());
             return View();
         }
 
         public IActionResult Privacy()
         {
+            ViewBag.returnController = ControllerContext.RouteData.Values["controller"].ToString();
+            ViewBag.returnAction = ControllerContext.RouteData.Values["action"].ToString();
             return View();
         }
 

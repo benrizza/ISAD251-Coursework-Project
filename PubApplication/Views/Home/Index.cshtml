@@ -1,8 +1,91 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+<style>
+    .deal {
+        min-height: 250px;
+        max-height: 250px;
+        position: relative;
+    }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    .typeText {
+        position: absolute;
+        top: 40%;
+        left: 0%;
+        width: 100%;
+        font-size: xx-large;
+        text-align: center;
+    }
+
+    .typeImg {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          max-height:inherit
+    }
+</style>
+
+<div class="container mt-md-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center">Order Menu</h1>
+        </div>
+    </div>
+    <div class="row mt-md-5">
+        <div class="col-lg-4 offset-lg-1 mt-5 mt-lg-0">
+            <div class="deal border border-dark border-bottom-0 rounded-top">
+                <div class="container">
+                    <div class="row" style="max-height:inherit">
+                        <div class="col-md-12" style="max-height:200px">
+                            <image src="imgs/RedLionText.png" class="img-responsive typeImg"> </image>
+                        </div>
+                        <div class="col-12" style="max-height:50px">
+                            <div class="row">
+                                <div class="col-5">
+                                    ITEM NAME: LASAGNA
+                                </div>
+                                <div class="col-4">
+                                    ITEM PRICE £3.99
+                                </div>
+                                <div class="col-3">
+                                    BUY BUTTON
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="deal bg-dark rounded-bottom">
+                <a class="text-white typeText" asp-area="" asp-controller="Home" asp-action="Index">Order a Drink</a>
+            </div>
+        </div>
+        <div class="col-lg-4 offset-lg-2 mt-5 mt-lg-0">
+            <div class="deal border border-dark border-bottom-0 rounded-top">
+                <div class="container">
+                    <div class="row" style="max-height:inherit">
+                        <div class="col-md-12" style="max-height:200px">
+                            <image src="imgs/RedLionText.png" class="img-responsive typeImg"> </image>
+                        </div>
+                        <div class="col-12" style="max-height:50px">
+                            <div class="row">
+                                <div class="col-5">
+                                    ITEM NAME: LASAGNA
+                                </div>
+                                <div class="col-4">
+                                    ITEM PRICE £3.99
+                                </div>
+                                <div class="col-3">
+                                    BUY BUTTON
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="deal bg-dark rounded-bottom">
+                <a class="text-white typeText" asp-area="" asp-controller="Home" asp-action="Index">Order A Snack</a>
+            </div>
+        </div>
+    </div>
 </div>
+

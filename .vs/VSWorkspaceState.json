@@ -1,7 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\PubApplication"
+    "\\PubApplication",
+    "\\PubApplication\\Controllers",
+    "\\PubApplication\\Models",
+    "\\PubApplication\\Views",
+    "\\PubApplication\\Views\\Home",
+    "\\PubApplication\\Views\\Shared"
   ],
+  "SelectedNode": "\\PubApplication\\PubApplication.sln",
   "PreviewInSolutionExplorer": false
 }

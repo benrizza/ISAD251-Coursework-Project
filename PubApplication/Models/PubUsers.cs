@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PubApplication.Models.Enum;
+using System;
 using System.Collections.Generic;
 
 namespace PubApplication.Models
@@ -13,7 +14,8 @@ namespace PubApplication.Models
         public int UserId { get; set; }
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
-        public byte? UserAccessRank { get; set; }
+        public UserAccessRank UserAccessRank { get; set; }
+        public string UserPassword { get; set; }
 
         public virtual ICollection<PubOrders> PubOrders { get; set; }
     }
