@@ -12,17 +12,25 @@ namespace PubApplication.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ISAD251DBContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ISAD251DBContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
+            List<PubItems> RandomItems = new List<PubItems>
+            {
+                _context.GetRandomPubItem(Models.Enum.ItemTypes.Drink),
+                _context.GetRandomPubItem(Models.Enum.ItemTypes.Snack)
+            };
+
+            ViewBag.ViewItems = RandomItems;
             ViewBag.returnController = ControllerContext.RouteData.Values["controller"].ToString();
             ViewBag.returnAction = ControllerContext.RouteData.Values["action"].ToString();
-            System.Diagnostics.Debug.WriteLine(ControllerContext.RouteData.Values["controller"].ToString());
             return View();
         }
 

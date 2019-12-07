@@ -1,9 +1,16 @@
 ﻿
 @{
     ViewData["Title"] = "RegistrationSuccess";
+    PubUsers user = null;
+    if (!(Context.Session.GetString("User") == null))
+    {
+        user = JsonSerializer.Deserialize<PubUsers>(Context.Session.GetString("User"));
+    }
 }
 
-<h1 class= "text-primary">Registration Successful! - Your user account ID is: @ViewBag.UserID </h1>
-<h3 class = "text-info"> You will need your User ID to login to your account in the future.</h3>
+<label class="display-1"> Hello, @user.UserFirstName @user.UserLastName </label>
+<h1 class="text-dark">Registration Successful! - Your user account ID is: @user.UserId </h1>
+<br />
+<h5 class="text-info"> You will need your User ID to login to your account in the future.</h5>
 
 

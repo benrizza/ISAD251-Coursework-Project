@@ -7,6 +7,8 @@ using PubApplication.Models.Enum;
 using PubApplication.ViewModels;
 using System.Data;
 using PubApplication.ViewModels.StoredProcedureViewModels;
+using System;
+using System.Collections;
 
 namespace PubApplication.Models
 {
@@ -31,28 +33,77 @@ namespace PubApplication.Models
 
 
         public virtual DbSet<Get_PubUserViewModel> GetPubUserResults { get; set; }
+        public virtual DbSet<Get_PubItemsViewModel> GetPubItemsResults { get; set; }
 
         //public virtual DbSet<Get_PubUserPasswordViewModel> GetPubUserPasswordResults { get; set; }
 
-        public int AddPubUser(PubUsers model)
+        public PubUsers AddPubUser(PubUsers model)
         {
             SqlParameter @outputParam = new SqlParameter {ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output};
 
             Database.ExecuteSqlRaw("EXEC @outputParam=Add_PubUser @UserFirstName, @UserLastName, @UserAccessRank, @UserPassword", 
                     outputParam,
-                    new SqlParameter("@UserFirstName", model.UserFirstName.ToString()),
-                    new SqlParameter("@UserLastName", model.UserLastName.ToString()),
+                    new SqlParameter("@UserFirstName", model.UserFirstName),
+                    new SqlParameter("@UserLastName", model.UserLastName),
                     new SqlParameter("@UserAccessRank", model.UserAccessRank.ToString()),
-                    new SqlParameter("@UserPassword", model.UserPassword.ToString()));
+                    new SqlParameter("@UserPassword", model.UserPassword));
             int result = (int)@outputParam.Value; //User ID is returned. Can return the value from the stored procedure as User ID is an integer.
-            return result;
+            if (result > 0)
+            {
+                model.UserId = result;
+                return model;
+            }
+            return null;
+        }
+
+        public PubItems AddPubItem(PubItems model)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Add_PubItem @ItemName, @ItemType, @ItemPrice, @ItemImagePath, @ItemDescription, @ItemStock, @ItemOnSale",
+                    outputParam,
+                    new SqlParameter("@ItemName", model.ItemName),
+                    new SqlParameter("@ItemType", model.ItemType.ToString()),
+                    new SqlParameter("@ItemPrice", model.ItemPrice),
+                    new SqlParameter("@ItemImagePath", (object)model.ItemImagePath ?? DBNull.Value),
+                    new SqlParameter("@ItemDescription", model.ItemDescription),
+                    new SqlParameter("@ItemStock", (object)model.ItemStock ?? DBNull.Value),
+                    new SqlParameter("@ItemOnSale", model.ItemOnSale));
+            int result = (int)@outputParam.Value; //Item ID is returned. 
+            if (result > 0)
+            {
+                model.ItemId = result;
+                return model;
+            }
+            return null;
+        }
+
+        public bool EditPubItem(PubItems model)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Update_PubItem @ItemID, @ItemName, @ItemType, @ItemPrice, @ItemImagePath, @ItemDescription, @ItemStock, @ItemOnSale",
+                    outputParam,
+                    new SqlParameter("@ItemID", model.ItemId),
+                    new SqlParameter("@ItemName", model.ItemName),
+                    new SqlParameter("@ItemType", model.ItemType.ToString()),
+                    new SqlParameter("@ItemPrice", model.ItemPrice),
+                    new SqlParameter("@ItemImagePath", (object)model.ItemImagePath ?? DBNull.Value),
+                    new SqlParameter("@ItemDescription", model.ItemDescription),
+                    new SqlParameter("@ItemStock", (object)model.ItemStock ?? DBNull.Value),
+                    new SqlParameter("@ItemOnSale", model.ItemOnSale));
+            int result = (int)@outputParam.Value; //Item ID is returned. 
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
         }
 
         public PubUsers GetPubUser(int UserId)
         {
-            var results = GetPubUserResults.FromSqlRaw("EXEC Get_PubUser @UserID", new SqlParameter("@UserID", UserId)).ToList();
-
-            System.Diagnostics.Debug.WriteLine(results.First().UserID.ToString());
+            var results = GetPubUserResults.FromSqlRaw("EXEC Get_PubUser @UserID", 
+                new SqlParameter("@UserID", UserId)).ToList();
             if (results.Count() > 0)
             {
                 PubUsers output = new PubUsers { UserId = results.First().UserID, 
@@ -67,6 +118,76 @@ namespace PubApplication.Models
             {
                 return null; //no results returned - user ID dosen't exist in DB so give nothing.
             }
+        }
+
+        public PubItems GetPubItem(int ItemID) //get pub items - just the item name
+        {
+            var results = GetPubItemsResults.FromSqlRaw("EXEC Get_PubItem @ItemID",
+                new SqlParameter("@ItemID", ItemID)).ToList();
+            if (results.Count() > 0)
+            {
+                return ConvertItemResultsToPubItems(results.First());
+            }
+            else
+            {
+                return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        public PubItems GetRandomPubItem(ItemTypes Type) //get pub items - just the item name
+        {
+            var results = GetPubItemsResults.FromSqlRaw("EXEC Get_RandomPubItem @ItemType",
+                new SqlParameter("@ItemType", Type.ToString())).ToList();
+            if (results.Count() > 0)
+            {
+                return ConvertItemResultsToPubItems(results.First());
+            }
+            else
+            {
+                return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        //public List<PubItems> GetPubItems(string ItemName) //get pub items - just the item name
+        //{
+        //    var results = GetPubItemsResults.FromSqlRaw("EXEC Get_PubItems @ItemName",
+        //        new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value)).ToList();
+        //    return ConvertPubItemResultsToPubItems(results);
+        //}
+
+        //public List<PubItems> GetPubItems(string ItemName, ItemTypes TypeOfItem) //get pub items - item type and name
+        //{
+        //    var results = GetPubItemsResults.FromSqlRaw("EXEC Get_PubItems @ItemName, @ItemType",
+        //        new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value),
+        //        new SqlParameter("@ItemType", TypeOfItem.ToString())).ToList();
+        //    return ConvertPubItemResultsToPubItems(results);
+        //}
+
+        public PubItemsViewModel GetPubItems(string ItemName, Boolean ItemOnSale, int PageNumber) //get pub items - if on sale and name
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            var results = GetPubItemsResults.FromSqlRaw("EXEC @outputParam=Get_PubItems_OnSaleFilter @ItemName, @ItemOnSale, @PageNumber, @ItemsPerPage",
+                outputParam,
+                new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value),
+                new SqlParameter("@PageNumber", PageNumber),
+                new SqlParameter("@ItemsPerPage", GlobalConstants.ItemsPerPage),
+                new SqlParameter("@ItemOnSale", ItemOnSale)).ToList();
+            return new PubItemsViewModel { PubItemsList = ConvertPubItemResultsToPubItems(results), RowCount = (int)@outputParam.Value };
+        }
+
+        public PubItemsViewModel GetPubItems(string ItemName, bool ItemOnSale, int PageNumber, ItemTypes TypeOfItem) //get pub items - item type, if on sale and name
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            var results = GetPubItemsResults.FromSqlRaw("EXEC @outputParam=Get_PubItems_OnSaleFilter @ItemName, @ItemOnSale, @PageNumber, @ItemsPerPage, @ItemType", //fetch pub items, output param returns the total number of results from the query
+                outputParam,
+                new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value),
+                new SqlParameter("@PageNumber", PageNumber),
+                new SqlParameter("@ItemsPerPage", GlobalConstants.ItemsPerPage),
+                new SqlParameter("@ItemOnSale", ItemOnSale),
+                new SqlParameter("@ItemType", TypeOfItem.ToString())).ToList();
+            return new PubItemsViewModel { PubItemsList = ConvertPubItemResultsToPubItems(results), RowCount = (int)@outputParam.Value };
         }
 
         //public string GetPubUserPassword(int UserId)
@@ -126,6 +247,47 @@ namespace PubApplication.Models
 
             return results;
         } */
+
+        private static List<PubItems> ConvertPubItemResultsToPubItems(List<Get_PubItemsViewModel> results)
+        {
+            if (results.Count() > 0)
+            {
+                List<PubItems> pubItems = new List<PubItems>();
+                foreach (Get_PubItemsViewModel item in results)
+                {
+                    PubItems Item = ConvertItemResultsToPubItems(item);
+                    pubItems.Add(Item);
+                }
+                return pubItems;
+            }
+            else
+            {
+                return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        private static PubItems ConvertItemResultsToPubItems(Get_PubItemsViewModel item)
+        {
+            return new PubItems()
+            {
+                ItemId = item.ItemId,
+                ItemName = item.ItemName,
+                ItemDescription = item.ItemDescription,
+                ItemImagePath = item.ItemImagePath,
+                ItemOnSale = Convert.ToBoolean(item.ItemOnSale),
+                ItemPrice = item.ItemPrice,
+                ItemStock = item.ItemStock,
+                ItemType = PubItemType.GetItemType(item.ItemType)
+            };
+        }
+
+
+
+
+
+
+
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

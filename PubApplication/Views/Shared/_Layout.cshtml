@@ -1,7 +1,7 @@
 ﻿@using PubApplication.Models.Enum;
 @{
     PubUsers user = null;
-    if (!(Context.Session.GetString("User") == null)) 
+    if (!(Context.Session.GetString("User") == null))
     {
         user = JsonSerializer.Deserialize<PubUsers>(Context.Session.GetString("User"));
     }
@@ -9,10 +9,10 @@
 
 <style>
     .navbar {
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;    
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 </style>
 
@@ -45,20 +45,20 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Items" asp-action="Index">Items</a>
                         </li>
-
                     </ul>
                     <ul class="navbar-nav ml-auto">
 
                         @if (!(user == null))
                         {
-                            <li class="navbar-text text-dark"> Welcome, @user.UserFirstName @user.UserLastName </li>
+                            <li class="navbar-text text-dark text-capitalize"> Welcome, @user.UserFirstName @user.UserLastName </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="navbardrop" data-toggle="dropdown"> Your Account </a>
                                 <div class="dropdown-menu">
                                     @if (user.UserAccessRank == UserAccessRank.Admin)
                                     {
+                                        <a class="dropdown-item" asp-controller="Items" asp-action="Create">Create New Item</a>
                                         <a class="dropdown-item" asp-controller="Home" asp-action="Privacy">ADMIN PAGE</a>
                                     }
                                     <a class="dropdown-item" asp-controller="Home" asp-action="Privacy">Your Orders</a>
@@ -74,8 +74,11 @@
                         else
                         {
 
-                            await Html.RenderPartialAsync("LoginDropdown");
-
+                                //@model LoginViewModel
+                                //await Html.RenderPartialAsync("LoginDropdown");
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
@@ -83,24 +86,24 @@
 
 
                         @*@if (!(user == null))
-                {
-                    <li class="nav-item">
-                        <form method="post" asp-action="logout" asp-controller="account">
-                            <h2> Welcome, @user.UserFirstName @user.UserLastName </h2>
-                            <button type="submit" class="nav-link btn btn-lin" style="width:auto"> Logout </button>
-                        </form>
-                    </li>
+        {
+            <li class="nav-item">
+                <form method="post" asp-action="logout" asp-controller="account">
+                    <h2> Welcome, @user.UserFirstName @user.UserLastName </h2>
+                    <button type="submit" class="nav-link btn btn-lin" style="width:auto"> Logout </button>
+                </form>
+            </li>
 
-                }
-                else
-                {
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                    </li>
-                }*@
+        }
+        else
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+            </li>
+        }*@
                     </ul>
                 </div>
             </div>

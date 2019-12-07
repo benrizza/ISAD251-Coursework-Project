@@ -30,7 +30,11 @@ namespace PubApplication
             //TESTING THIS
 
             //HMM???
-            services.AddSession();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.IsEssential = false;
+            });
 
             services.AddDbContext<ISAD251DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ISAD251_DB")));
         }
@@ -48,10 +52,9 @@ namespace PubApplication
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseStaticFiles();
             app.UseSession();
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
             app.UseRouting();
 
             app.UseAuthorization();

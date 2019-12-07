@@ -1,0 +1,115 @@
+﻿@{
+    ViewData["Title"] = "Create Item";
+}
+
+<style>
+    .existingImg{
+        max-height: 300px;
+    }
+</style>
+
+@model EditItemViewModel
+    <form enctype="multipart/form-data" method="post">
+        <input type="hidden" asp-for="ItemID" />
+        <input type="hidden" asp-for="ItemExistingImagePath" />
+        <div class="container">
+            <div class="row">
+                <h2 class="display-4"> Editing Item ID: @Model.ItemID </h2>
+            </div>
+            <div class="row">
+                <div asp-validation-summary="All" class="col-md-12 text-danger"></div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label asp-for="ItemName"></label>
+                        <input asp-for="ItemName" class="form-control" />
+                        <span asp-validation-for="ItemName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="ItemType"></label>
+                        <select class="form-control" asp-for="ItemType" asp-items="Html.GetEnumSelectList<ItemTypes>()"></select>
+                        <span asp-validation-for="ItemType" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ItemPrice"></label>
+                        <input asp-for="ItemPrice" class="form-control" />
+                        <span asp-validation-for="ItemPrice" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ItemStock"></label>
+                        <input asp-for="ItemStock" class="form-control" />
+                        <span asp-validation-for="ItemStock" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-check" style="height:100%">
+                        <input class="form-check-input" asp-for="ItemOnSale" style="" />
+                        <label class="form-check-label" asp-for="ItemOnSale"></label>
+                        <span asp-validation-for="ItemOnSale" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <h6> Existing Image: </h6>
+                </div>
+                @if (Model.ItemExistingImagePath != null)
+                {
+                    <div class="col-md-9">
+                        <image asp-append-version="true" src="/imgs/@Model.ItemExistingImagePath" class="img-responsive existingImg"> </image>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-9">
+                        <h6 class="font-weight-bold"> No Existing Image </h6>
+                    </div>
+                }
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="ItemImage"></label>
+                        <div class="custom-file">
+                            <input asp-for="ItemImage" class="form-control custom-file-input" />
+                            <label class="custom-file-label">Choose Image...</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="ItemDescription"></label>
+                        <textarea asp-for="ItemDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ItemDescription" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <button type="submit" class="btn btn-primary m-2">Edit Item</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary m-2"> Cancel </a>
+            </div>
+        </div>
+
+        @section Scripts {
+            <script>
+                $(document).ready(function () {
+                    $('.custom-file-input').on("change", function () {
+                        var fileName = $(this).val().split("\\").pop();
+                        $(this).next('.custom-file-label').html(fileName);
+                    });
+                });
+            </script>
+        }
+    </form>

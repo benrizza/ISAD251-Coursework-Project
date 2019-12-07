@@ -37,17 +37,21 @@ namespace PubApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new PubUsers { UserFirstName = model.UserFirstName, UserLastName = model.UserLastName, UserPassword = model.UserPassword, UserAccessRank = UserAccessRank.Customer };
-                int result = _context.AddPubUser(user);
-                if (!(result == 0))
+                PubUsers user = _context.AddPubUser(new PubUsers 
+                {
+                    UserFirstName = model.UserFirstName, 
+                    UserLastName = model.UserLastName, 
+                    UserPassword = model.UserPassword, 
+                    UserAccessRank = UserAccessRank.Customer 
+                });
+                if (!(user == null))
                 {    //User created, ID stored in result
-                    user.UserId = result;
+                    user.UserPassword = null; //no password security implemented...sorry
                     HttpContext.Session.SetString("User", JsonSerializer.Serialize(user));
-                    ViewBag.UserID = result;
                     return View("RegistrationSuccess");
                 } 
                 else {
-                    ModelState.AddModelError("","Could not create a new account.");
+                    ModelState.AddModelError("", "An error occured, could not create a new account.");
                 //ERROR, user not created
                 }
             }

@@ -1,0 +1,128 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    PubItems DrinkItem = ViewBag.DrinkItem;
+    PubItems SnackItem = ViewBag.SnackItem;
+}
+<style>
+    .deal {
+        min-height: 300px;
+        max-height: 300px;
+        position: relative;
+    }
+
+    .typeText {
+        position: absolute;
+        top: 40%;
+        left: 0%;
+        width: 100%;
+        font-size: xx-large;
+        text-align: center;
+    }
+
+    .typeImg {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        height: inherit;
+        max-height:inherit;
+        max-width:100%;
+    }
+    .warning {
+        height: 40%;
+        font-size: large;
+        position: absolute;
+        display: block;
+    }
+</style>
+<div class="container mt-md-3">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center">Order Menu</h1>
+        </div>
+    </div>
+    <div class="row mt-md-5">
+        <div class="col-lg-5 mt-5 mt-lg-0">
+            <div class="deal border border-dark border-bottom-0 rounded-top">
+                <div class="container">
+                    <div class="row" style="max-height:inherit">
+                        @if (DrinkItem != null)
+                        {
+                            var DrinkImage = (DrinkItem.ItemImagePath ?? "RedLion.png");
+                            <div class="col-md-12 mt-3" style="height:230px">
+                                <image asp-append-version="true" src="/imgs/@DrinkImage" class="img-responsive typeImg"> </image>
+                            </div>
+                            <div class="col-12 container" style="max-height:50px">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h6 class="text-dark text-center font-weight-bold"> @DrinkItem.ItemName </h6>
+                                    </div>
+                                    <div class="col-3">
+                                        <h6 class="text-dark text-center font-weight-bold"> Price: @DrinkItem.ItemPrice.ToString("C") </h6>
+                                    </div>
+                                    <div class="col-3 text-dark text-center">
+                                        <form method="post" asp-controller="Items" asp-action="Buy" asp-route-id="@DrinkItem.ItemId">
+                                            <button type="submit" class="btn btn-secondary"> Add </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-12">
+                                <div class="col-12 text-warning warning">
+                                    There are currently no drinks on sale!
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="deal bg-dark rounded-bottom">
+                <a class="text-white typeText" asp-area="" asp-controller="Items" asp-action="Index">Drinks Menu</a>
+            </div>
+        </div>
+        <div class="col-lg-5 offset-lg-2 mt-5 mt-lg-0">
+            <div class="deal border border-dark border-bottom-0 rounded-top">
+                <div class="container">
+                    <div class="row" style="max-height:inherit">
+                        @if (SnackItem != null)
+                        {
+                            var SnackImage = (SnackItem.ItemImagePath ?? "RedLion.png");
+                            <div class="col-md-12 mt-3" style="max-height:230px">
+                                <image asp-append-version="true" src="/imgs/@SnackImage" class="img-responsive typeImg"> </image>
+                            </div>
+                            <div class="col-12 container" style="max-height:50px">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h6 class="text-dark text-center font-weight-bold"> @SnackItem.ItemName </h6>
+                                    </div>
+                                    <div class="col-3">
+                                        <h6 class="text-dark text-center font-weight-bold"> Price: @SnackItem.ItemPrice.ToString("C") </h6>
+                                    </div>
+                                    <div class="col-3 text-dark text-center">
+                                        <form method="post" asp-controller="Items" asp-action="Add" asp-route-id="@SnackItem.ItemId">
+                                            <button type="submit" class="btn btn-secondary"> Add </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-12">
+                                <div class="col-12 text-warning warning">
+                                    There are currently no snacks on sale!
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="deal bg-dark rounded-bottom">
+                <a class="text-white typeText" asp-area="" asp-controller="Items" asp-action="Index">Snacks Menu</a>
+            </div>
+        </div>
+    </div>
+</div>
+
