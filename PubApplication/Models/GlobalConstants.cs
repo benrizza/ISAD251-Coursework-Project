@@ -7,6 +7,6 @@ namespace PubApplication.Models
 {
     public class GlobalConstants
     {
-        public const int ItemsPerPage = 1; 
+        public const int ItemsPerPage = 30; 
     }
 }
