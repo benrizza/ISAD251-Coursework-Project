@@ -53,7 +53,12 @@
         @for (int i = 0; i < Model.Count; i++)
         {
             var photoPath = "~/imgs/" + (Model[i].PubItem.ItemImagePath ?? "RedLionText.png");
-
+            var maxOrder = 0;
+            if (Item.ItemStock < GlobalConstants.MaxItemsPerOrder) {
+                    maxOrder = Item.ItemStock;
+                else
+                    maxOrder = GlobalConstants.MaxItemsPerOrder;
+                }
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="card">
@@ -92,12 +97,12 @@
                                     <form method="post" asp-controller="Items" asp-action="RemoveOrderItem" asp-route-id="@i">
                                         @*id is equal to index in table*@
                                         <div class="text-right">
-                                            <h5 class="font-weight-bold m-auto w-auto d-inline-block"> Total Price: @totalprice</h5>
+                                            <h5 class="font-weight-bold m-auto p-2 w-auto d-inline-block"> Total Price: £@totalprice</h5>
                                             <button type="submit" class="btn btn-danger"> Remove </button>
                                         </div>
                                     </form>
                                     <label asp-for="@Model[i].ItemQuantity"></label>
-                                    <input min="1" max="100" class="ItemQuantityInput form-control" id="@i" asp-for="@Model[i].ItemQuantity" />
+                                    <input min="1" max="@maxOrder" class="ItemQuantityInput form-control" id="@i" asp-for="@Model[i].ItemQuantity" />
                                 </div>
                             </div>
                         </div>

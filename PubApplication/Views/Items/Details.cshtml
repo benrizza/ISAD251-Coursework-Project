@@ -33,6 +33,12 @@
         <div class="col-md-12">
             @if (Item != null)
             {
+                int maxOrder = 0;
+                if (Item.ItemStock < GlobalConstants.MaxItemsPerOrder) {
+                    maxOrder = Item.ItemStock;
+                else
+                    maxOrder = GlobalConstants.MaxItemsPerOrder;
+                }
                 var photoPath = "~/imgs/" + (Item.ItemImagePath ?? "RedLionText.png");
                 <div class="card">
                     <img class="card-img-top CardImage mt-3" src="@photoPath" alt="Card image" asp-append-version="true">
@@ -65,7 +71,7 @@
                                                     <label asp-for="ItemQuantity"></label>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <input min="1" max="100" class="form-control" asp-for="ItemQuantity" />
+                                                    <input min="1" max="maxOrder" class="form-control" asp-for="ItemQuantity" />
                                                 </div>
                                             </div>
                                         </div>

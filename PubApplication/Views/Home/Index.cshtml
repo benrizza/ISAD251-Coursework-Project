@@ -7,7 +7,8 @@
 }
 <style>
     .deal {
-        padding: 4rem;
+        padding-top: 2rem;
+        padding-bottom:2rem;
         text-align: center;
     }
 
@@ -24,6 +25,7 @@
         margin: auto;
         max-height: inherit;
         width: auto;
+        max-width:100%;
     }
 
     .imgDiv {
@@ -72,7 +74,7 @@
                     <form method="post" asp-controller="Items" asp-action="AddOrderItem">
                         <button type="submit" class="btn btn-secondary"> Add </button>
                         <label asp-for="ItemQuantity"></label>
-                        <input min="1" max="100" class="form-control w-auto d-inline" asp-for="ItemQuantity" />
+                        <input min="1" max="@item.ItemStock" class="form-control w-auto d-inline" asp-for="ItemQuantity" />
                         <input hidden asp-for="ItemId" value="@item.ItemId" />
                     </form>
                 </div>

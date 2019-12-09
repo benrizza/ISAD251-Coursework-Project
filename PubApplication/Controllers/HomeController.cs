@@ -25,8 +25,8 @@ namespace PubApplication.Controllers
         {
             List<PubItems> RandomItems = new List<PubItems>
             {
-                _context.GetRandomPubItem(Models.Enum.ItemTypes.Drink),
-                _context.GetRandomPubItem(Models.Enum.ItemTypes.Snack)
+                _context.GetRandomPubItem(Models.Enum.ItemTypes.Drink, true), //get random item of type drink that is on sale.
+                _context.GetRandomPubItem(Models.Enum.ItemTypes.Snack, true)
             };
 
             ViewBag.ViewItems = RandomItems;

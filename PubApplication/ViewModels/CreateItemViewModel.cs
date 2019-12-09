@@ -34,9 +34,10 @@ namespace PubApplication.ViewModels
         public string ItemDescription { get; set; }
 
         [Display(Name = "Amount Of Item Stock")]
-        public int ItemStock { get; set; }
+        [Range(0, int.MaxValue, ErrorMessage = "Item stock must be an integer greater or equal to zero.")]
+        public int ItemStock { get; set; } = 0; //default item has no stock and is off sale
 
         [Display(Name = "Item On Sale")]
-        public bool ItemOnSale { get; set; }
+        public bool ItemOnSale { get; set; } = false;
     }
 }

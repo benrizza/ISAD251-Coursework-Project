@@ -78,6 +78,16 @@ namespace PubApplication.Models
             return null;
         }
 
+        public int AddPubOrder(int UserID) //take in user ID return the order ID
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Add_PubItem @UserID",
+                    outputParam,
+                    new SqlParameter("@UserID", UserID));
+            return (int)@outputParam.Value; //Item ID is returned. 
+        }
+
         public bool EditPubItem(PubItems model)
         {
             SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
@@ -134,9 +144,10 @@ namespace PubApplication.Models
             }
         }
 
-        public PubItems GetRandomPubItem(ItemTypes Type) //get pub items - just the item name
+        public PubItems GetRandomPubItem(ItemTypes Type, bool ItemOnSale) //get pub items - just the item name
         {
-            var results = GetPubItemsResults.FromSqlRaw("EXEC Get_RandomPubItem @ItemType",
+            var results = GetPubItemsResults.FromSqlRaw("EXEC Get_RandomPubItem @ItemOnSale,@ItemType",
+                new SqlParameter("@ItemOnSale", ItemOnSale), 
                 new SqlParameter("@ItemType", Type.ToString())).ToList();
             if (results.Count() > 0)
             {
