@@ -66,13 +66,11 @@ C:\Users\Ben\source\repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\ne
 C:\Users\Ben\source\repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\PubApplication.Views.pdb
 C:\Users\Ben\source\repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\PubApplication.dll
 C:\Users\Ben\source\repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\PubApplication.pdb
-C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Account\Index.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Account\Success.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\netcoreapp3.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Account\Register.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\netcoreapp3.0\libman.json
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\PubApplication.csprojAssemblyReference.cache
-C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\PubApplication.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\netcoreapp3.0\Microsoft.AspNetCore.Razor.Language.dll
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\netcoreapp3.0\Microsoft.CodeAnalysis.dll
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\netcoreapp3.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -160,3 +158,6 @@ C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\ne
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\bin\Debug\netcoreapp3.0\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Home\backup\Index.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Shared\_Layout_WithLogin.cshtml.g.cs
+C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\PubApplication.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Shared\ToastMessage.cshtml.g.cs
+C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Items\OrderBasket.cshtml.g.cs

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PubApplication.Models;
 using Microsoft.EntityFrameworkCore;
+using PubApplication.Controllers;
 
 namespace PubApplication
 {
@@ -32,7 +33,7 @@ namespace PubApplication
             //HMM???
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.IdleTimeout = TimeSpan.FromMinutes(45);
                 options.Cookie.IsEssential = false;
             });
 

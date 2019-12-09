@@ -1,12 +1,14 @@
-﻿@{
+﻿@model AddOrderItemViewModel
+
+@{
     ViewData["Title"] = "Home Page";
     List<PubItems> Items = ViewBag.ViewItems;
-    Layout = "~/Views/Shared/_Layout_WithLogin.cshtml";
+    //Layout = "~/Views/Shared/_Layout_WithLogin.cshtml";
 }
 <style>
     .deal {
-        padding:4rem;
-        text-align:center;
+        padding: 4rem;
+        text-align: center;
     }
 
     .typeText {
@@ -20,16 +22,16 @@
 
     .typeImg {
         margin: auto;
-        max-height:inherit;
-        width:auto;
+        max-height: inherit;
+        width: auto;
     }
 
     .imgDiv {
-        min-height:275px;
-        max-height:275px;
+        min-height: 275px;
+        max-height: 275px;
         max-width: 100%;
         width: initial;
-        margin:auto;
+        margin: auto;
     }
 
     .card-buy {
@@ -67,8 +69,11 @@
                     <p class="card-text">@item.ItemDescription</p>
                 </div>
                 <div class="card-buy">
-                    <form method="post" asp-controller="Items" asp-action="Buy" asp-route-id="@item.ItemId">
+                    <form method="post" asp-controller="Items" asp-action="AddOrderItem">
                         <button type="submit" class="btn btn-secondary"> Add </button>
+                        <label asp-for="ItemQuantity"></label>
+                        <input min="1" max="100" class="form-control w-auto d-inline" asp-for="ItemQuantity" />
+                        <input hidden asp-for="ItemId" value="@item.ItemId" />
                     </form>
                 </div>
                 <div class="card-footer bg-dark deal">
@@ -76,6 +81,6 @@
                 </div>
             </div>
         }
-        </div>
+    </div>
 </div>
 

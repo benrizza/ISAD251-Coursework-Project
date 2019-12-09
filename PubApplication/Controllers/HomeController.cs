@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PubApplication.Models;
+using PubApplication.ViewModels;
 
 namespace PubApplication.Controllers
 {
@@ -31,7 +32,7 @@ namespace PubApplication.Controllers
             ViewBag.ViewItems = RandomItems;
             ViewBag.returnController = ControllerContext.RouteData.Values["controller"].ToString();
             ViewBag.returnAction = ControllerContext.RouteData.Values["action"].ToString();
-            return View();
+            return View(new AddOrderItemViewModel());
         }
 
         public IActionResult Privacy()

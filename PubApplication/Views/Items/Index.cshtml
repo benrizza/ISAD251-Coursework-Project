@@ -3,6 +3,13 @@
     ViewData["Title"] = "Items";
     PubItemsViewModel PubItems = ViewBag.PubItemsViewModel;
 
+
+    var Params = new Dictionary<string, string> {
+    {"ItemName", Model.ItemName },
+    //{"ItemOnSale", Model.ItemOnSale.ToString()},  --MOVING ITEM ON SALE TO ADMIN ONLY SCREEN--
+    { "ItemType", Model.ItemType.ToString() }
+    };
+
     PubUsers user = null;
     if (!(Context.Session.GetString("User") == null))
     {
@@ -22,17 +29,26 @@
     }
 
     .GroupText {
-
     }
 
-    @@media (max-width: 768px) 
-    {
-        .GroupText
-        {
+    @@media (max-width: 768px) {
+        .GroupText {
             display: none;
         }
     }
 </style>
+
+
+@*---------TOASTY AREA---------*@
+<div aria-live="polite" aria-atomic="true" style="width:100%; left:0; position: fixed; top: 0px; z-index:10">
+    <!-- Position it -->
+    <div class="p-2" style="position: absolute; top: 0; right: 0;" href="#" id="ToastyMessage">
+        @if (ViewBag.Toast != null)
+        {
+            await Html.RenderPartialAsync("ToastMessage", (ToastAlertViewModel)ViewBag.Toast);
+        }
+    </div>
+</div>
 
 <div class="cotainer mt-3">
     @* -----------------DISPLAY PUB ITEM FILTERS----------------- *@
@@ -45,7 +61,7 @@
                         <label class="input-group-text" asp-for="ItemType"></label>
                     </div>
                     <select class="form-control custom-select" asp-for="ItemType" asp-items="Html.GetEnumSelectList<ItemTypes>()">
-                        <option selected value="">Choose Type...</option>
+                        <option selected value="">All</option>
                     </select>
                     @if (user != null && user.UserAccessRank == UserAccessRank.Admin)
                     {
@@ -75,11 +91,11 @@
                 int PageUp = Model.PageNumber + 1;
                 int PageDown = Model.PageNumber - 1;
 
-                var Params = new Dictionary<string, string> {
-                    {"ItemName", Model.ItemName },
-                    //{"ItemOnSale", Model.ItemOnSale.ToString()},  --MOVING ITEM ON SALE TO ADMIN ONLY SCREEN--
-                    { "ItemType", Model.ItemType.ToString() }
-                };
+                //var Params = new Dictionary<string, string> {
+                //    {"ItemName", Model.ItemName },
+                //    //{"ItemOnSale", Model.ItemOnSale.ToString()},  --MOVING ITEM ON SALE TO ADMIN ONLY SCREEN--
+                //    { "ItemType", Model.ItemType.ToString() }
+                //};
 
                 <div class="input-group ml-auto">
                     @if (PageDown >= 0) //can't go to a page that has nothing on it!
@@ -109,7 +125,7 @@
                 {
                     var photoPath = "~/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
                     <div class="card">
-                        <img class="card-img-top CardImage mt-3" src="@photoPath" alt="Card image" asp-append-version="true">
+                        <img class="card-img-top CardImage mt-3" src="@photoPath" asp-append-version="true">
                         <div class="card-body">
                             <h4 class="card-title text-capitalize">@item.ItemName</h4>
                             <h6 class="card-text font-weight-bold"> Price: £@item.ItemPrice.ToString() </h6>
@@ -118,9 +134,8 @@
                                 <span class="card-text text-warning"> Only @item.ItemStock left! </span>
                             }
                             <p class="card-text"> @item.ItemDescription </p>
-                            <form method="post" asp-controller="Items" asp-action="Buy" asp-route-id="@item.ItemId">
-                                <button type="submit" class="btn btn-primary"> Add </button>
-                            </form>
+                            <button id="@item.ItemId" class="btn btn-primary AddOrderButton"> Add </button>
+                            <a asp-action="Details" asp-controller="Items" asp-route-id="@item.ItemId" class="btn btn-primary AddOrderButton"> Details </a>
                         </div>
                     </div>
                 }
@@ -131,11 +146,42 @@
         else
         {
             <div class="col-12">
-                <h2 class="card-title text-warning"> Could not find any items that matched the specified search criteria. </h2>
+                <h2 class="card-title text-danger"> Could not find any items that matched the specified search criteria. </h2>
             </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.toast').toast('show'); //show given toast message from controller - nothing will show if there is no message
+
+            $('.AddOrderButton').on("click", function () {
+                var id = $(this).attr('id');
+                var itemID = {
+                    "id": id
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Items/AddOrderItemPartial",
+                    data: itemID,
+                    success: function (data) {
+                            $("#ToastyMessage").html(data);
+                            $('.toast').toast('show');
+                         }
+                    });
+                });
+            });
+    </script>
+}
+
+
+
+
+
+
 
 
 

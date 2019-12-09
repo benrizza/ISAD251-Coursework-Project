@@ -1,0 +1,147 @@
+﻿@model List<OrderBasketViewModel>
+
+
+@{
+    ViewData["Title"] = "OrderBasket";
+}
+
+<style>
+    .CardImage {
+        min-height: 125px;
+        max-height: 175px;
+        max-width: 100%;
+        display: block;
+        width: initial;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+@*---------TOASTY AREA---------*@
+<div aria-live="polite" aria-atomic="true" style="width:100%; left:0; position: fixed; top: 0px; z-index:10">
+    <!-- Position it -->
+    <div class="p-2" style="position: absolute; top: 0; right: 0;" href="#" id="ToastyMessage">
+
+    </div>
+</div>
+
+
+
+
+
+<div class="container">
+    <div class="row p-2">
+        <div class="display-2 col-12 text-center">
+            Order Basket
+        </div>
+    </div>
+    @if (Model != null)
+    {
+        decimal totalcost = 0;
+        foreach(OrderBasketViewModel item in Model)
+        {
+            totalcost =+ (decimal)item.ItemQuantity * item.PubItem.ItemPrice;
+        }
+        <div class="row">
+            <div class="col-12 text-right">
+                <h4 class="font-weight-bold"> Total Price: £@totalcost.ToString("F") </h4>
+                <form asp-action="Checkout" asp-controller="Orders">
+                    <button class="btn btn-warning"> Confirm Order </button>
+                </form>
+            </div>
+        </div>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var photoPath = "~/imgs/" + (Model[i].PubItem.ItemImagePath ?? "RedLionText.png");
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="row no-gutters">
+                            <div class="col-md-3">
+                                <img asp-append-version="true" src="@photoPath" class="CardImage card-img p-3">
+                            </div>
+                            <div class="col-md-5">
+                                <div class="card-body">
+                                    <h5 class="card-title">@Model[i].PubItem.ItemName</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6> Price: £@Model[i].PubItem.ItemPrice </h6>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6> Type: @Model[i].PubItem.ItemType</h6>
+                                        </div>
+                                    </div>
+                                    @if (Model[i].PubItem.ItemStock < 20)
+                                    {
+                                        <h6 class="card-text text-warning"> Only @Model[i].PubItem.ItemStock remaining in stock! </h6>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="card-text text-success"> @Model[i].PubItem.ItemStock remaining in stock. </h6>
+                                    }
+                                    <a asp-action="Details" asp-controller="Items" asp-route-id="@Model[i].PubItem.ItemId" class="btn btn-primary AddOrderButton"> Details </a>
+                                </div>
+                            </div>
+
+                            @{
+                                var totalprice = Model[i].ItemQuantity * Model[i].PubItem.ItemPrice;
+                            }
+                            <div class="col-md-4">
+                                <div class="card-body">
+                                    <form method="post" asp-controller="Items" asp-action="RemoveOrderItem" asp-route-id="@i">
+                                        @*id is equal to index in table*@
+                                        <div class="text-right">
+                                            <h5 class="font-weight-bold m-auto w-auto d-inline-block"> Total Price: @totalprice</h5>
+                                            <button type="submit" class="btn btn-danger"> Remove </button>
+                                        </div>
+                                    </form>
+                                    <label asp-for="@Model[i].ItemQuantity"></label>
+                                    <input min="1" max="100" class="ItemQuantityInput form-control" id="@i" asp-for="@Model[i].ItemQuantity" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <h2 class="display-4"> Error: You have no items in your basket. </h2>
+        </div>
+    }
+</div>
+
+
+@*-------------UPDATE TO INCLUDE CHANGING THE TOTAL PRICE---------------*@
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function UpdateItemQuantity(id, quantity) {
+                var postData = {
+                    "itemindex": id,
+                    "itemQuantity": quantity
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Items/EditOrderItem",
+                    data: postData,
+                    success: function (data) {
+                        $("#ToastyMessage").html(data);
+                        $('.toast').toast('show');
+                    }
+                });
+            };
+
+            $(".ItemQuantityInput").on('change', function (e) {
+                console.log("change")
+                UpdateItemQuantity($(this).attr('id'), $(this).val());
+            });
+        });
+    </script>
+}

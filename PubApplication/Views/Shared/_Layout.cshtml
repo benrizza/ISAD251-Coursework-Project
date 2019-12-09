@@ -14,6 +14,18 @@
         -ms-user-select: none;
         user-select: none;
     }
+
+    .basketDropDown {
+        width:450px;
+    }
+
+    @@media (max-width: 576px) 
+    {
+        .basketDropDown
+        {
+            width:100%;
+        }
+    }
 </style>
 
 
@@ -49,7 +61,34 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ml-auto">
-
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbardrop" data-toggle="dropdown"> Order Basket </a>
+                            <div class="dropdown-menu dropdown-menu-right basketDropDown">
+                                <div class="card mb-3">
+                                    <div class="row no-gutters">
+                                        <div class="col-4">
+                                            <img src="~/imgs/RedLionText.png" class="card-img">
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Highland Spring Still Water</h6>
+                                                <h4 class="card-text font-weight-bold">Price: £4000.54</h4>
+                                            </div>
+                                            <div class="card-footer" style="display:flex">
+                                                Quantity In Order: 50
+                                                <form>
+                                                    <button type="submit" class="btn btn-primary"> Remove From Order </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form method="get" asp-action="OrderBasket" asp-controller="Items">
+                                    <button type="submit" class="btn btn-primary float-right m-4"> Proceed To Checkout </button>
+                                </form>
+                            </div>
+                        </li>
+                            
                         @if (!(user == null))
                         {
                             <li class="navbar-text text-dark text-capitalize"> Welcome, @user.UserFirstName @user.UserLastName </li>
@@ -74,8 +113,11 @@
                         else
                         {
 
-                                //@model LoginViewModel
-                                //await Html.RenderPartialAsync("LoginDropdown");
+                            //@model LoginViewModel
+                            //await Html.RenderPartialAsync("LoginDropdown");
+
+
+                            
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
                             </li>

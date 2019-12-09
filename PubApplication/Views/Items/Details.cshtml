@@ -1,12 +1,88 @@
-﻿@model PubItems
+﻿@model AddOrderItemViewModel
 @{
-    ViewData["Title"] = Model.ItemName + " Details";
+    PubItems Item = ViewBag.Item;
+    if (Item != null) {
+        ViewData["Title"] = Item.ItemName + " Details";
+    }
+    else
+    {
+        ViewData["Title"] = "Error";
+    }
 }
+
+<style>
+        .CardImage {
+        min-height: 125px;
+        max-height: 500px;
+        max-width: 100%;
+        display: block;
+        width: initial;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
 
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <label class="display-1"> Item: @Model.ItemName </label>
+            @if (Item != null)
+            {
+                var photoPath = "~/imgs/" + (Item.ItemImagePath ?? "RedLionText.png");
+                <div class="card">
+                    <img class="card-img-top CardImage mt-3" src="@photoPath" alt="Card image" asp-append-version="true">
+                    <div class="row no-gutters">
+                        <div class="card-body col-md-8">
+                            <h2 class="card-title m-3 text-capitalize">@Item.ItemName</h2>
+                            <h4 class="card-text m-3"> Price: £@Item.ItemPrice.ToString() </h4>
+                            @if (Item.ItemStock < 20)
+                            {
+                                <h5 class="card-text m-3 text-warning"> Only @Item.ItemStock remaining in stock! </h5>
+                            }
+                            else
+                            {
+                                <h5 class="card-text m-3 text-success"> @Item.ItemStock remaining in stock. </h5>
+                            }
+                            <h6 class="card-text m-3"> @Item.ItemDescription </h6>
+                        </div>
+                        <div class="card-body col-md-4">
+                            <form method="post" asp-action="AddOrderItem">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span asp-validation-for="ItemQuantity" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="col-md-6 m-auto text-right">
+                                                    <label asp-for="ItemQuantity"></label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input min="1" max="100" class="form-control" asp-for="ItemQuantity" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="w-100 text-right">
+                                            <button type="submit" class="btn btn-primary m-3"> Add To Basket </button>
+                                            <a asp-action="Index" asp-controller="Items" class="btn btn-secondary m-3"> Back To Items </a>
+                                        </div>
+                                        <input hidden asp-for="ItemId" value="@Item.ItemId" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-12">
+                    <h2 class="display-4 text-warning"> Error: Unable to get the details specified item. </h2>
+                </div>
+            }
         </div>
     </div>
 </div>
