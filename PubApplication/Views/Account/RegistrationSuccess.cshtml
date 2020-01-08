@@ -1,16 +1,23 @@
-﻿
+﻿@model PubUsers
+
 @{
-    ViewData["Title"] = "RegistrationSuccess";
-    PubUsers user = null;
-    if (!(Context.Session.GetString("User") == null))
-    {
-        user = JsonSerializer.Deserialize<PubUsers>(Context.Session.GetString("User"));
-    }
+    ViewData["Title"] = "Account Created";
 }
 
-<label class="display-1"> Hello, @user.UserFirstName @user.UserLastName </label>
-<h1 class="text-dark">Registration Successful! - Your user account ID is: @user.UserId </h1>
-<br />
-<h5 class="text-info"> You will need your User ID to login to your account in the future.</h5>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="display-1 text-center"> Hello, @Model.UserFirstName @Model.UserLastName </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-dark m-3">Registration Successful! - Your user account ID is: @Model.UserId </h4>
+            <h5 class="text-info"> You will need your User ID to login to your account in the future.</h5>
+        </div>
+    </div>
+</div>
+
+
 
 

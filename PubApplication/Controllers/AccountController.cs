@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PubApplication.Models;
 using PubApplication.Models.Enum;
 using PubApplication.ViewModels;
+using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace PubApplication.Controllers
         {
             if (ModelState.IsValid)
             {
+                
                 PubUsers user = _context.AddPubUser(new PubUsers 
                 {
                     UserFirstName = model.UserFirstName, 
@@ -46,9 +48,49 @@ namespace PubApplication.Controllers
                 });
                 if (!(user == null))
                 {    //User created, ID stored in result
-                    user.UserPassword = null; //no password security implemented...sorry
-                    HttpContext.Session.SetString("User", JsonSerializer.Serialize(user));
-                    return View("RegistrationSuccess");
+                    ViewBag.UserID = user.UserId;
+                    //---------LOG IN USER---------
+
+                    string SessionString = HttpContext.Session.GetString("PubSession");
+                    if (SessionString != null) //session already exists, put user in existing session
+                    {
+                        PubSessions Session = _context.GetPubSession(SessionString);
+                        if (Session != null)
+                        {
+                            int UserOrderBasketID;
+                            if (user.UserOrderBasketID == 0 & Session.OrderBasketId != 0)
+                            {
+                                UserOrderBasketID = Session.OrderBasketId;
+                            }
+                            else
+                            {
+                                UserOrderBasketID = user.UserOrderBasketID;
+                            }
+                            if (_context.UpdatePubSession(SessionString, user.UserId, UserOrderBasketID))
+                            {
+                                return View("RegistrationSuccess");
+                            }
+                            else
+                            {
+                                //error
+                                ModelState.AddModelError("ERROR", "An Error has occoured, you could not be logged in.");
+                                return View("RegistrationSuccess");
+                            }
+
+                        }
+                    }
+                    //create session with user
+                    SessionString = _context.AddPubSession(user.UserId, user.UserOrderBasketID);
+                    if (SessionString != null)
+                    {
+                        HttpContext.Session.SetString("PubSession", SessionString);
+                        return View("RegistrationSuccess");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("ERROR", "An Error has occoured, you could not be logged in.");
+                        return View("RegistrationSuccess");
+                    }
                 } 
                 else {
                     ModelState.AddModelError("", "An error occured, could not create a new account.");
@@ -71,14 +113,64 @@ namespace PubApplication.Controllers
                     {
                         if (user.UserPassword == model.UserPassword) //test if password matches
                         {
-                            HttpContext.Session.SetString("User", JsonSerializer.Serialize(user));
-                            if (returnController == null)
+                            //string UniqueFileName = Guid.NewGuid().ToString();
+                            string SessionString = HttpContext.Session.GetString("PubSession");
+                            if (SessionString != null) //session already exists, put user in existing session
                             {
-                                return RedirectToAction("Index", "Home");
+                                PubSessions Session = _context.GetPubSession(SessionString);
+                                if (Session != null)
+                                {
+                                    int UserOrderBasketID;
+                                    if (user.UserOrderBasketID == 0 & Session.OrderBasketId != 0)
+                                    {
+                                        UserOrderBasketID = Session.OrderBasketId;
+                                    }
+                                    else
+                                    {
+                                        UserOrderBasketID = user.UserOrderBasketID;
+                                    }
+                                    if (_context.UpdatePubSession(SessionString, user.UserId, UserOrderBasketID))
+                                    {
+                                        if (returnController == null || returnAction == null)
+                                        {
+                                            return RedirectToAction("Index", "Home");
+                                        }
+                                        else
+                                        {
+                                            return RedirectToAction(returnAction, returnController);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //error
+                                        ModelState.AddModelError("ERROR", "An Error has occoured, you could not be logged in.");
+                                        ViewBag.returnController = returnController;
+                                        ViewBag.returnAction = returnAction;
+                                        return View(model);
+                                    }
+                                    
+                                }
+                            }
+                            //create session with user
+                            SessionString = _context.AddPubSession(user.UserId, user.UserOrderBasketID);
+                            if (SessionString != null)
+                            {
+                                HttpContext.Session.SetString("PubSession", SessionString);
+                                if (returnController == null || returnAction == null)
+                                {
+                                    return RedirectToAction("Index", "Home");
+                                }
+                                else
+                                {
+                                    return RedirectToAction(returnAction, returnController);
+                                }
                             }
                             else
                             {
-                                return RedirectToAction(returnAction, returnController);
+                                ModelState.AddModelError("ERROR", "An Error has occoured, you could not be logged in.");
+                                ViewBag.returnController = returnController;
+                                ViewBag.returnAction = returnAction;
+                                return View(model);
                             }
                         }
 
@@ -94,9 +186,18 @@ namespace PubApplication.Controllers
         [HttpPost]
         public IActionResult Logout(string returnController, string returnAction)
         {
-            HttpContext.Session.Remove("User");
+            var SessionString = HttpContext.Session.GetString("PubSession");
+            if (SessionString != null)
+            {
+                PubSessions pubSessions = _context.GetPubSession(SessionString);
+                if (pubSessions != null & pubSessions.UserId > 0 )
+                {
+                    _context.UpdatePubSession(pubSessions.SessionId, 0, null);
+                }                                                                    
+            }
             if (returnController == null)
             {
+
                 return RedirectToAction("Index", "Home");
             }
             else

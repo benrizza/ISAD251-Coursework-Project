@@ -27,6 +27,8 @@ namespace PubApplication.Models
         public virtual DbSet<PubOrderItems> PubOrderItems { get; set; }
         public virtual DbSet<PubOrders> PubOrders { get; set; }
         public virtual DbSet<PubUsers> PubUsers { get; set; }
+        public virtual DbSet<PubSessions> PubSessions { get; set; }
+        public virtual DbSet<PubOrderBasketItems> PubOrderBasketItems { get; set; }
 
         //EXAMPLE
         //public virtual DbSet<addPubUserViewModel> AddPubUserResults { get; set; }
@@ -34,6 +36,8 @@ namespace PubApplication.Models
 
         public virtual DbSet<Get_PubUserViewModel> GetPubUserResults { get; set; }
         public virtual DbSet<Get_PubItemsViewModel> GetPubItemsResults { get; set; }
+        public virtual DbSet<Get_PubUserDetailsViewModel> GetPubUserDetailsResults { get; set; }
+        public virtual DbSet<Get_PubOrderBasketItemsViewModel> GetPubOrderBasketItemsResults { get; set; }
 
         //public virtual DbSet<Get_PubUserPasswordViewModel> GetPubUserPasswordResults { get; set; }
 
@@ -67,7 +71,7 @@ namespace PubApplication.Models
                     new SqlParameter("@ItemPrice", model.ItemPrice),
                     new SqlParameter("@ItemImagePath", (object)model.ItemImagePath ?? DBNull.Value),
                     new SqlParameter("@ItemDescription", model.ItemDescription),
-                    new SqlParameter("@ItemStock", (object)model.ItemStock ?? DBNull.Value),
+                    new SqlParameter("@ItemStock", (object)model.ItemStock ?? 0),
                     new SqlParameter("@ItemOnSale", model.ItemOnSale));
             int result = (int)@outputParam.Value; //Item ID is returned. 
             if (result > 0)
@@ -85,7 +89,72 @@ namespace PubApplication.Models
             Database.ExecuteSqlRaw("EXEC @outputParam=Add_PubItem @UserID",
                     outputParam,
                     new SqlParameter("@UserID", UserID));
-            return (int)@outputParam.Value; //Item ID is returned. 
+            return (int)@outputParam.Value; //order id is returned. 
+        }
+
+        public bool AddPubOrderBasketItem(int OrderBasketID, int ItemID, int ItemQuantity) //take in user ID return the order ID
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Add_PubOrderBasketItem @OrderBasketID, @ItemID, @ItemQuantity",
+                    outputParam,
+                    new SqlParameter("@OrderBasketID", OrderBasketID), 
+                    new SqlParameter("@ItemID", ItemID),
+                    new SqlParameter("@ItemQuantity", ItemQuantity));
+            int result = (int)@outputParam.Value; //1 or 0 is returned - 1 being success, 0 being failure
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public string AddPubSession(int? UserID, int? OrderBasketID) //take in user ID return the order ID
+        {
+            string SessionID = String.Format("Session_{0}",Guid.NewGuid().ToString());
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Add_PubSession @SessionID, @UserID, @OrderBasketID",
+                    outputParam,
+                    new SqlParameter("@OrderBasketID", OrderBasketID ?? 0),
+                    new SqlParameter("@UserID", UserID ?? 0),
+                    new SqlParameter("@SessionID", SessionID));
+            if ((int)@outputParam.Value == 1) //1 or 0 is returned - 1 being success, 0 being failure
+            {
+                return SessionID;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public int CreatePubSessionOrderBasket(string SessionID, int? OrderBasketID) //take in user ID return the order ID
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Create_PubSessionOrderBasket @SessionID, @OrderBasketID",
+                    outputParam,
+                    new SqlParameter("@SessionID", SessionID),
+                    new SqlParameter("@OrderBasketID", OrderBasketID ?? 0));
+            return (int)@outputParam.Value; //order basket id is returned
+        }
+
+        public bool EditPubOrderBasketItem(int OrderBasketID, int ItemID, int ItemQuantity)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Update_PubOrderBasketItem @OrderBasketID,@ItemID,@ItemQuantity",
+                    outputParam,
+                    new SqlParameter("@OrderBasketID", OrderBasketID),
+                    new SqlParameter("@ItemID", ItemID),
+                    new SqlParameter("@ItemQuantity", ItemQuantity));
+            int result = (int)@outputParam.Value;
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool EditPubItem(PubItems model)
@@ -102,7 +171,41 @@ namespace PubApplication.Models
                     new SqlParameter("@ItemDescription", model.ItemDescription),
                     new SqlParameter("@ItemStock", (object)model.ItemStock ?? DBNull.Value),
                     new SqlParameter("@ItemOnSale", model.ItemOnSale));
-            int result = (int)@outputParam.Value; //Item ID is returned. 
+            int result = (int)@outputParam.Value; 
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
+
+        public bool UpdatePubSession(string SessionID, int UserID, int? OrderBasketID)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Update_PubSession @SessionID, @OrderBasketID, @UserID",
+                    outputParam,
+                    new SqlParameter("@SessionID", SessionID),
+                    new SqlParameter("@OrderBasketID", OrderBasketID ?? 0),
+                    new SqlParameter("@UserID", UserID));
+            int result = (int)@outputParam.Value;
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool UpdatePubUserOrderBasket(int UserID, int OrderBasketID)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Update_PubUserOrderBasket @UserID, @OrderBasketID",
+                    outputParam,
+                    new SqlParameter("@OrderBasketID", OrderBasketID),
+                    new SqlParameter("@UserID", UserID));
+            int result = (int)@outputParam.Value;
             if (result == 1)
             {
                 return true;
@@ -120,13 +223,103 @@ namespace PubApplication.Models
                     UserPassword = results.First().UserPassword, 
                     UserFirstName = results.First().UserFirstName, 
                     UserLastName = results.First().UserLastName, 
-                    UserAccessRank = UserRank.GetRank(results.First().UserAccessRank) }; 
+                    UserAccessRank = UserRank.GetRank(results.First().UserAccessRank),
+                    UserOrderBasketID = results.First().UserOrderBasketID ?? 0
+                }; 
                 //If results are returned then the user has been found. As the user is unique, their will only be one result so the password is fetched from the first (only) result.
                 return output;
             }
             else
             {
                 return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        public PubUserDetailsViewModel GetPubUserDetails(int UserId)
+        {
+            var results = GetPubUserDetailsResults.FromSqlRaw("EXEC Get_PubUserDetails @UserID",
+                new SqlParameter("@UserID", UserId)).ToList();
+            if (results.Count() > 0)
+            {
+                PubUserDetailsViewModel output = new PubUserDetailsViewModel
+                {
+                    UserId = results.First().UserId,
+                    UserFirstName = results.First().UserFirstName,
+                    UserLastName = results.First().UserLastName,
+                    UserAccessRank = UserRank.GetRank(results.First().UserAccessRank),
+                    UserOrderBasketID = results.First().UserOrderBasketID ?? 0
+                };
+                //If results are returned then the user has been found. As the user is unique, their will only be one result so the password is fetched from the first (only) result.
+                return output;
+            }
+            else
+            {
+                return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        public List<OrderBasketViewModel> GetPubOrderBasketItems(int OrderBasketID)
+        {
+            var results = GetPubOrderBasketItemsResults.FromSqlRaw("EXEC Get_PubOrderBasketItems @OrderBasketID",
+                new SqlParameter("@OrderBasketID", OrderBasketID)).ToList();
+            if (results.Count() > 0)
+            {
+                List<OrderBasketViewModel> OrderBasket = new List<OrderBasketViewModel>();
+                foreach (Get_PubOrderBasketItemsViewModel item in results)
+                {
+                    OrderBasket.Add(new OrderBasketViewModel()
+                    {
+                        ItemQuantity = item.ItemQuantity,
+                        PubItem = new PubItems()
+                        {
+                            ItemDescription = item.ItemDescription,
+                            ItemId = item.ItemId,
+                            ItemImagePath = item.ItemImagePath,
+                            ItemName = item.ItemName,
+                            ItemOnSale = item.ItemOnSale,
+                            ItemPrice = item.ItemPrice,
+                            ItemStock = item.ItemStock,
+                            ItemType = PubItemType.GetItemType(item.ItemType)
+                        }
+                    });
+                }
+                //If results are returned then the user has been found. As the user is unique, their will only be one result so the password is fetched from the first (only) result.
+                return OrderBasket;
+            }
+            else
+            {
+                return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        public PubSessions GetPubSession(string SessionID)
+        {
+            var results = PubSessions.FromSqlRaw("EXEC Get_PubSession @SessionID",
+                new SqlParameter("@SessionID", SessionID)).ToList();
+            if (results.Count() > 0)
+            {
+                PubSessions session = results.First();
+                return session;
+            }
+            else
+            {
+                return null; 
+            }
+        }
+
+        public PubOrderBasketItems GetPubOrderBasketItem(int OrderBasketID, int ItemID)
+        {
+            var results = PubOrderBasketItems.FromSqlRaw("EXEC Get_PubOrderBasketItem @OrderBasketID,@ItemID",
+                new SqlParameter("@OrderBasketID", OrderBasketID),
+                new SqlParameter("@ItemID", ItemID)).ToList();
+            if (results.Count() > 0)
+            {
+                PubOrderBasketItems item = results.First();
+                return item;
+            }
+            else
+            {
+                return null; 
             }
         }
 
@@ -140,7 +333,7 @@ namespace PubApplication.Models
             }
             else
             {
-                return null; //no results returned - user ID dosen't exist in DB so give nothing.
+                return null; 
             }
         }
 
@@ -347,6 +540,31 @@ namespace PubApplication.Models
                     .WithMany(p => p.PubOrderItems)
                     .HasForeignKey(d => d.OrderId)
                     .HasConstraintName("OrderIDFK");
+            });
+
+            modelBuilder.Entity<PubOrderBasketItems>(entity =>
+            {
+                entity.HasKey(e => new { e.OrderBasketId, e.ItemId });
+
+                entity.Property(e => e.OrderBasketId).HasColumnName("OrderBasketID");
+
+                entity.Property(e => e.ItemId).HasColumnName("ItemID");
+
+                entity.Property(e => e.ItemQuantity).HasColumnName("ItemQuantity");
+            });
+
+            modelBuilder.Entity<PubSessions>(entity =>
+            {
+                entity.HasKey(e => e.SessionId);
+
+                entity.Property(e => e.SessionId)
+                    .HasColumnName("SessionID")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.OrderBasketId).HasColumnName("OrderBasketID");
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
             });
 
             modelBuilder.Entity<PubOrders>(entity =>

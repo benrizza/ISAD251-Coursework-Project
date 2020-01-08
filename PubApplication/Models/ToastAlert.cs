@@ -19,22 +19,22 @@ namespace PubApplication.Models
             };
         }
 
-        public static ToastAlertViewModel ItemQuantityStockError()
+        public static ToastAlertViewModel ItemQuantityStockError(string ImagePath)
         {
             return new ToastAlertViewModel() //ERROR - item could not be added to order basket
             {
                 ToastBody = string.Format("Error: Item quantity cannot excede item stock."),
-                ToastImagePath = GlobalConstants.DefaultImagePath,
+                ToastImagePath = ImagePath ?? GlobalConstants.DefaultImagePath,
                 ToastTitle = "Error"
             };
         }
 
-        public static ToastAlertViewModel ItemQuantityMaxError()
+        public static ToastAlertViewModel ItemQuantityMaxError(string ImagePath)
         {
             return new ToastAlertViewModel() //ERROR - item could not be added to order basket
             {
                 ToastBody = string.Format("Error: Quantity of a certian item cannot excede {0} per order.", GlobalConstants.MaxItemsPerOrder),
-                ToastImagePath = GlobalConstants.DefaultImagePath,
+                ToastImagePath = ImagePath ?? GlobalConstants.DefaultImagePath,
                 ToastTitle = "Error"
             };
         }

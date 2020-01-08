@@ -88,43 +88,44 @@
                                 </form>
                             </div>
                         </li>
-                            
-                        @if (!(user == null))
-                        {
-                            <li class="navbar-text text-dark text-capitalize"> Welcome, @user.UserFirstName @user.UserLastName </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" id="navbardrop" data-toggle="dropdown"> Your Account </a>
-                                <div class="dropdown-menu">
-                                    @if (user.UserAccessRank == UserAccessRank.Admin)
-                                    {
-                                        <a class="dropdown-item" asp-controller="Items" asp-action="Create">Create New Item</a>
-                                        <a class="dropdown-item" asp-controller="Home" asp-action="Privacy">ADMIN PAGE</a>
-                                    }
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="Privacy">Your Orders</a>
-                                    <div class="dropdown-divider"></div>
-                                    <form method="post" asp-action="logout" asp-controller="account">
-                                        <input type="hidden" name="returnAction" value="@ViewBag.returnAction" />
-                                        <input type="hidden" name="returnController" value="@ViewBag.returnController" />
-                                        <button type="submit" class="dropdown-item btn btn-secondary"> Logout </button>
-                                    </form>
-                                </div>
-                            </li>
-                        }
-                        else
-                        {
+                        
+                        @await Component.InvokeAsync("LoggedInUser")
+                        @*@if (!(user == null))
+        {
+            <li class="navbar-text text-dark text-capitalize"> Welcome, @user.UserFirstName @user.UserLastName </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbardrop" data-toggle="dropdown"> Your Account </a>
+                <div class="dropdown-menu">
+                    @if (user.UserAccessRank == UserAccessRank.Admin)
+                    {
+                        <a class="dropdown-item" asp-controller="Items" asp-action="Create">Create New Item</a>
+                        <a class="dropdown-item" asp-controller="Home" asp-action="Privacy">ADMIN PAGE</a>
+                    }
+                    <a class="dropdown-item" asp-controller="Home" asp-action="Privacy">Your Orders</a>
+                    <div class="dropdown-divider"></div>
+                    <form method="post" asp-action="logout" asp-controller="account">
+                        <input type="hidden" name="returnAction" value="@ViewBag.returnAction" />
+                        <input type="hidden" name="returnController" value="@ViewBag.returnController" />
+                        <button type="submit" class="dropdown-item btn btn-secondary"> Logout </button>
+                    </form>
+                </div>
+            </li>
+        }
+        else
+        {
 
-                            //@model LoginViewModel
-                            //await Html.RenderPartialAsync("LoginDropdown");
+            //@model LoginViewModel
+            //await Html.RenderPartialAsync("LoginDropdown");
 
 
-                            
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
-                        }
+
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+            </li>
+        }*@
 
 
                         @*@if (!(user == null))

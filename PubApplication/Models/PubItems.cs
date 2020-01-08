@@ -9,6 +9,7 @@ namespace PubApplication.Models
         public PubItems()
         {
             PubOrderItems = new HashSet<PubOrderItems>();
+            //PubOrderBasketItems = new HashSet<PubOrderBasketItems>();
         }
 
         public int ItemId { get; set; }
@@ -21,5 +22,7 @@ namespace PubApplication.Models
         public bool ItemOnSale { get; set; }
 
         public virtual ICollection<PubOrderItems> PubOrderItems { get; set; }
+
+        //public virtual ICollection<PubOrderBasketItems> PubOrderBasketItems { get; set; }
     }
 }

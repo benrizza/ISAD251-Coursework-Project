@@ -25,10 +25,6 @@
     </div>
 </div>
 
-
-
-
-
 <div class="container">
     <div class="row p-2">
         <div class="display-2 col-12 text-center">
@@ -54,11 +50,14 @@
         {
             var photoPath = "~/imgs/" + (Model[i].PubItem.ItemImagePath ?? "RedLionText.png");
             var maxOrder = 0;
-            if (Item.ItemStock < GlobalConstants.MaxItemsPerOrder) {
-                    maxOrder = Item.ItemStock;
-                else
-                    maxOrder = GlobalConstants.MaxItemsPerOrder;
-                }
+            if (Model[i].PubItem.ItemStock < GlobalConstants.MaxItemsPerOrder)
+            {
+                maxOrder = Model[i].PubItem.ItemStock;
+            }
+            else
+            {
+                maxOrder = GlobalConstants.MaxItemsPerOrder;
+            }
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="card">
@@ -81,9 +80,13 @@
                                     {
                                         <h6 class="card-text text-warning"> Only @Model[i].PubItem.ItemStock remaining in stock! </h6>
                                     }
-                                    else
+                                    else if (Model[i].PubItem.ItemStock <= 100)
                                     {
                                         <h6 class="card-text text-success"> @Model[i].PubItem.ItemStock remaining in stock. </h6>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="card-text text-success"> Item is in stock. </h6>
                                     }
                                     <a asp-action="Details" asp-controller="Items" asp-route-id="@Model[i].PubItem.ItemId" class="btn btn-primary AddOrderButton"> Details </a>
                                 </div>
@@ -102,7 +105,7 @@
                                         </div>
                                     </form>
                                     <label asp-for="@Model[i].ItemQuantity"></label>
-                                    <input min="1" max="@maxOrder" class="ItemQuantityInput form-control" id="@i" asp-for="@Model[i].ItemQuantity" />
+                                    <input min="1" max="@maxOrder" class="ItemQuantityInput form-control" id="@Model[i].PubItem.ItemId" asp-for="@Model[i].ItemQuantity" />
                                 </div>
                             </div>
                         </div>
@@ -128,7 +131,7 @@
         $(document).ready(function () {
             function UpdateItemQuantity(id, quantity) {
                 var postData = {
-                    "itemindex": id,
+                    "itemID": id,
                     "itemQuantity": quantity
                 }
 

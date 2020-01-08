@@ -34,9 +34,12 @@
             @if (Item != null)
             {
                 int maxOrder = 0;
-                if (Item.ItemStock < GlobalConstants.MaxItemsPerOrder) {
+                if (Item.ItemStock < GlobalConstants.MaxItemsPerOrder)
+                {
                     maxOrder = Item.ItemStock;
+                }
                 else
+                {
                     maxOrder = GlobalConstants.MaxItemsPerOrder;
                 }
                 var photoPath = "~/imgs/" + (Item.ItemImagePath ?? "RedLionText.png");

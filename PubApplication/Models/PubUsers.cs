@@ -16,6 +16,7 @@ namespace PubApplication.Models
         public string UserLastName { get; set; }
         public UserAccessRank UserAccessRank { get; set; }
         public string UserPassword { get; set; }
+        public int UserOrderBasketID { get; set; }
 
         public virtual ICollection<PubOrders> PubOrders { get; set; }
     }

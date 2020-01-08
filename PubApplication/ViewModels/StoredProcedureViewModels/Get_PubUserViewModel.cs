@@ -15,5 +15,6 @@ namespace PubApplication.ViewModels.StoredProcedureViewModels
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
         public string UserAccessRank { get; set; }
+        public int? UserOrderBasketID { get; set; }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using PubApplication.Models.Enum;
+using PubApplication.ViewModels.StoredProcedureViewModels;
 
 namespace PubApplication.Controllers
 {
@@ -112,66 +113,118 @@ namespace PubApplication.Controllers
                 PubItems Item = _context.GetPubItem(model.ItemId);
                 if (Item != null)
                 { //Item exists in database. 
-                    if (model.ItemQuantity < Item.ItemStock)
-                    {
-                        if (model.ItemQuantity > 0 && model.ItemQuantity < GlobalConstants.MaxItemsPerOrder) //compare against max items per order only rather than item stock as well as the item stock may change when the user actually makes their order.
+                    if (Item.ItemOnSale) {
+                        if (model.ItemQuantity <= Item.ItemStock)
                         {
-                            var OrderItems = HttpContext.Session.GetString("OrderItems");
-                            List<PubOrderItems> PubOrderItems;
-                            if (OrderItems != null) //an order basket already exists
+                            if (model.ItemQuantity > 0 && model.ItemQuantity <= GlobalConstants.MaxItemsPerOrder) //compare against max items per order only rather than item stock as well as the item stock may change when the user actually makes their order.
                             {
-                                try
+                                string Session = HttpContext.Session.GetString("PubSession"); //store session id
+                                int OrderBasketID = 0;
+                                if (Session != null) //if a session has been created
                                 {
-                                    PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems); //parse the existing basket
-                                    foreach (PubOrderItems item in PubOrderItems)
+                                    PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                                    if (pubSession != null) //session exists
                                     {
-                                        if (item.ItemId == model.ItemId)
+                                        if (pubSession.OrderBasketId != 0)
                                         {
-                                            int newQuantity = item.ItemQuantity + model.ItemQuantity;
-                                            if (newQuantity < GlobalConstants.MaxItemsPerOrder)
+                                            //add item 
+                                            OrderBasketID = pubSession.OrderBasketId;
+                                            PubOrderBasketItems item = _context.GetPubOrderBasketItem(pubSession.OrderBasketId, model.ItemId);
+                                            if (item != null)
                                             {
-                                                item.ItemQuantity = newQuantity;
-                                                HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
-                                                TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket. Total Quantity: {2}", model.ItemQuantity, Item.ItemName, newQuantity), Item.ItemImagePath));
-                                                return RedirectToAction("Index");
+                                                //edit item
+                                                int newQuantity = model.ItemQuantity + item.ItemQuantity;
+                                                if (newQuantity <= Item.ItemStock)
+                                                {
+                                                    if (newQuantity <= GlobalConstants.MaxItemsPerOrder)
+                                                    {
+                                                        //edit
+                                                        if (_context.EditPubOrderBasketItem(OrderBasketID, model.ItemId, newQuantity))
+                                                        {
+                                                            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket. Total Quantity: {2}", model.ItemQuantity, Item.ItemName, newQuantity), Item.ItemImagePath));
+                                                            return RedirectToAction("Index");
+                                                        }
+                                                        else
+                                                        {
+                                                            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.DefaultError());
+                                                            return RedirectToAction("Index");
+                                                            //error item could not be updated
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //max items error
+                                                        TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityMaxError(Item.ItemImagePath));
+                                                        return RedirectToAction("Index");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityStockError(Item.ItemImagePath));
+                                                    return RedirectToAction("Index");
+                                                    //not enoguh in stock error
+                                                }
                                             }
-                                            else
+                                        }
+                                        else
+                                        {
+                                            //create new orderbasket and add item
+                                            OrderBasketID = _context.CreatePubSessionOrderBasket(Session, null);
+                                            if (pubSession.UserId != 0)
                                             {
-                                                TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityMaxError());
-                                                return RedirectToAction("Index");
+                                                if (_context.GetPubUser(pubSession.UserId) != null) {
+                                                    _context.UpdatePubUserOrderBasket(pubSession.UserId, OrderBasketID);
+                                                }
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        //create a new session and orderbasket and add item
+                                        Session = _context.AddPubSession(null, null);
+                                        if (Session != null)
+                                        {
+                                            HttpContext.Session.SetString("PubSession", Session);
+                                            OrderBasketID = _context.CreatePubSessionOrderBasket(Session, null);
+                                        }
+                                    }
                                 }
-                                catch
+                                else //create a new session and orderbasket and add item
                                 {
-                                    PubOrderItems = new List<PubOrderItems>(); //if the json cannot be parsed then the session string was corrupt so create a new list.
-                                    PubOrderItems.Add(new PubOrderItems() { ItemId = model.ItemId, ItemQuantity = model.ItemQuantity });
+                                    Session = _context.AddPubSession(null, null);
+                                    if (Session != null)
+                                    {
+                                        HttpContext.Session.SetString("PubSession", Session);
+                                        OrderBasketID = _context.CreatePubSessionOrderBasket(Session, null);
+                                    }
+                                }
+
+                                if (OrderBasketID != 0)
+                                {
+                                    if (_context.AddPubOrderBasketItem(OrderBasketID, model.ItemId, model.ItemQuantity))
+                                    {
+                                        TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket", model.ItemQuantity, Item.ItemName), Item.ItemImagePath));
+                                        return RedirectToAction("Index");
+                                    }
                                 }
                             }
-                            else //create new order basket
+                            else
                             {
-                                PubOrderItems = new List<PubOrderItems>(); //create new 
-                                PubOrderItems.Add(new PubOrderItems() { ItemId = model.ItemId, ItemQuantity = model.ItemQuantity });
+                                TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityMaxError(Item.ItemImagePath));
+                                return RedirectToAction("Index");
                             }
 
-                            //Update Order Basket session!
-                            HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
-                            //ADD TOASTY MESSAGE
-                            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket", model.ItemQuantity, Item.ItemName), Item.ItemImagePath));
-                            return RedirectToAction("Index");
+
                         }
                         else
                         {
-                            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityMaxError());
+                            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityStockError(Item.ItemImagePath));
                             return RedirectToAction("Index");
                         }
-
                     }
                     else
                     {
-                        TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.ItemQuantityStockError());
-                        return RedirectToAction("Index");
+                        //error item not on sale
                     }
                 }
             }
@@ -180,34 +233,49 @@ namespace PubApplication.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditOrderItem(int itemindex, int itemQuantity) {
-            var OrderItems = HttpContext.Session.GetString("OrderItems");
-            if (OrderItems != null)
+        public IActionResult EditOrderItem(int itemID, int itemQuantity) 
+        {
+            if (itemID > 0 && itemQuantity > 0)
             {
-                if (itemindex >= 0)
+                string Session = HttpContext.Session.GetString("PubSession"); //store session id
+                if (Session != null) //if a session has been created
                 {
-                    if (itemQuantity > 0 && itemQuantity <= GlobalConstants.MaxItemsPerOrder) //if the user wants a quantity of 0, they must press the remove button.
+                    PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                    if (pubSession != null && pubSession.OrderBasketId != 0) //session and basket exists
                     {
-                        try
+                        int OrderBasketID = pubSession.OrderBasketId;
+                        PubItems PubItem = _context.GetPubItem(itemID);
+                        PubOrderBasketItems item = _context.GetPubOrderBasketItem(pubSession.OrderBasketId, itemID);
+                        if (item != null && PubItem != null)
                         {
-                            List<PubOrderItems> PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems); //parse the existing basket
-                            if (PubOrderItems.ElementAt(itemindex) != null)
+                            //edit item
+                            if (itemQuantity <= PubItem.ItemStock)
                             {
-                                PubItems Item = _context.GetPubItem(PubOrderItems[itemindex].ItemId);
-                                if (Item != null)
+                                if (itemQuantity <= GlobalConstants.MaxItemsPerOrder)
                                 {
-                                    PubOrderItems[itemindex].ItemQuantity = itemQuantity;
-                                    HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
-                                    return PartialView("ToastMessage",ToastAlert.Toast("Item Added", string.Format("Changed {0} quantity to: {1}.", Item.ItemName, itemQuantity), Item.ItemImagePath));
+                                    //edit
+                                    if (_context.EditPubOrderBasketItem(OrderBasketID, itemID, itemQuantity))
+                                    {
+                                        return PartialView("ToastMessage", ToastAlert.Toast("Item Updated", string.Format("Changed {0} quantity to: {1}.", PubItem.ItemName, itemQuantity), PubItem.ItemImagePath));
+                                    }
+                                    else
+                                    {
+                                        return PartialView("ToastMessage", ToastAlert.DefaultError());
+                                        //error item could not be updated
+                                    }
+                                }
+                                else
+                                {
+                                    //max items error
+                                    return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError(PubItem.ItemImagePath));
                                 }
                             }
+                            else
+                            {
+                                return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError(PubItem.ItemImagePath));
+                                //not enoguh in stock error
+                            }
                         }
-                        catch { }
-                        return PartialView("ToastMessage", ToastAlert.DefaultError());
-                    }
-                    else
-                    {
-                        return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError());
                     }
                 }
             }
@@ -224,120 +292,286 @@ namespace PubApplication.Controllers
                     PubItems Item = _context.GetPubItem(id);
                     if (Item != null)
                     {
-                        if (quantity < Item.ItemStock) {
-                            if (quantity < GlobalConstants.MaxItemsPerOrder)
+                        if (Item.ItemOnSale)
+                        {
+                            if (quantity <= Item.ItemStock)
                             {
-                                var OrderItems = HttpContext.Session.GetString("OrderItems");
-                                List<PubOrderItems> PubOrderItems;
-                                if (OrderItems != null) //an order basket already exists
+                                if (quantity > 0 && quantity <= GlobalConstants.MaxItemsPerOrder) //compare against max items per order only rather than item stock as well as the item stock may change when the user actually makes their order.
                                 {
-                                    try
+                                    string Session = HttpContext.Session.GetString("PubSession"); //store session id
+                                    int OrderBasketID = 0;
+                                    if (Session != null) //if a session has been created
                                     {
-                                        PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems); //parse the existing basket
-                                        foreach (PubOrderItems item in PubOrderItems)
+                                        PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                                        if (pubSession != null) //session exists
                                         {
-                                            if (item.ItemId == id)
+                                            if (pubSession.OrderBasketId != 0)
                                             {
-                                                int newQuantity = item.ItemQuantity + quantity;
-                                                if (newQuantity < GlobalConstants.MaxItemsPerOrder)
+                                                //add item 
+                                                OrderBasketID = pubSession.OrderBasketId;
+                                                PubOrderBasketItems item = _context.GetPubOrderBasketItem(pubSession.OrderBasketId, id);
+                                                if (item != null)
                                                 {
-                                                    item.ItemQuantity = newQuantity;
-                                                    HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
-
-                                                    return PartialView("ToastMessage", ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket. Total Quantity: {2}", quantity, Item.ItemName, newQuantity), Item.ItemImagePath));
+                                                    //edit item
+                                                    int newQuantity = quantity + item.ItemQuantity;
+                                                    if (newQuantity <= Item.ItemStock)
+                                                    {
+                                                        if (newQuantity <= GlobalConstants.MaxItemsPerOrder)
+                                                        {
+                                                            //edit
+                                                            if (_context.EditPubOrderBasketItem(OrderBasketID, id, newQuantity))
+                                                            {
+                                                                return PartialView("ToastMessage", ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket. Total Quantity: {2}", quantity, Item.ItemName, newQuantity), Item.ItemImagePath));
+                                                            }
+                                                            else
+                                                            {
+                                                                return PartialView("ToastMessage", ToastAlert.DefaultError());
+                                                                //error item could not be updated
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            //max items error
+                                                            return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError(Item.ItemImagePath));
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError(Item.ItemImagePath));
+                                                        //not enoguh in stock error
+                                                    }
                                                 }
-                                                else
+                                            }
+                                            else
+                                            {
+                                                //create new orderbasket and add item
+                                                OrderBasketID = _context.CreatePubSessionOrderBasket(Session, null);
+                                                if (pubSession.UserId != 0)
                                                 {
-                                                    return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError());
+                                                    if (_context.GetPubUser(pubSession.UserId) != null)
+                                                    {
+                                                        _context.UpdatePubUserOrderBasket(pubSession.UserId, OrderBasketID);
+                                                    }
                                                 }
                                             }
                                         }
+                                        else
+                                        {
+                                            //create a new session and orderbasket and add item
+                                            Session = _context.AddPubSession(null, null);
+                                            if (Session != null)
+                                            {
+                                                HttpContext.Session.SetString("PubSession", Session);
+                                                OrderBasketID = _context.CreatePubSessionOrderBasket(Session, null);
+                                            }
+                                        }
                                     }
-                                    catch
+                                    else //create a new session and orderbasket and add item
                                     {
-                                        PubOrderItems = new List<PubOrderItems>(); //if the json cannot be parsed then the session string was corrupt so create a new list.
+                                        Session = _context.AddPubSession(null, null);
+                                        if (Session != null)
+                                        {
+                                            HttpContext.Session.SetString("PubSession", Session);
+                                            OrderBasketID = _context.CreatePubSessionOrderBasket(Session, null);
+                                        }
+                                    }
+
+                                    if (OrderBasketID != 0)
+                                    {
+                                        if (_context.AddPubOrderBasketItem(OrderBasketID, id, quantity))
+                                        {
+                                            return PartialView("ToastMessage", ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket", quantity, Item.ItemName), Item.ItemImagePath));
+                                        }
                                     }
                                 }
-                                else //create new order basket
+                                else
                                 {
-                                    PubOrderItems = new List<PubOrderItems>(); //create new basket
+                                    return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError(Item.ItemImagePath));
                                 }
 
-                                //Update Order Basket session!
-                                PubOrderItems.Add(new PubOrderItems() { ItemId = id, ItemQuantity = quantity });
-                                HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
 
-                                return PartialView("ToastMessage", ToastAlert.Toast("Item Added", string.Format("{0}x {1} was added to your basket", quantity, Item.ItemName), Item.ItemImagePath ?? GlobalConstants.DefaultImagePath));
                             }
                             else
                             {
-                                return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError());
+                                return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError(Item.ItemImagePath));
                             }
                         }
                         else
                         {
-                            return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError());
+                            //error item not on sale
                         }
                     }
                 }
             }
             return PartialView("ToastMessage", ToastAlert.DefaultError());
-            //var OrderItems = HttpContext.Session.GetString("OrderItems");
-            //if (OrderItems != null)
-            //{
-            //    var Item = new { ItemName = "Hello123", ItemQuantity = 6 };
-            //    return PartialView("ToastMessage", new ToastAlertViewModel() { ItemName = Item.ItemName, ItemQuantity = Item.ItemQuantity });
-            //}
-            //else
-            //{
-            //    //PubOrderItems Item = new PubOrderItems() { ItemId = 1,  = "YoBen" };
-
-            //    var Item = new { ItemName = "Hello", ItemQuantity = 3 };
-            //    HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(Item));
-
-
-            //    //JsonResult result = new JsonResult(new { item = Item, success = true });
-
-            //    return PartialView("ToastMessage", new ToastAlertViewModel() { ItemName = Item.ItemName, ItemQuantity = Item.ItemQuantity });
-            //}
         }
+
+
+        //            if (quantity < Item.ItemStock) {
+        //                if (quantity < GlobalConstants.MaxItemsPerOrder)
+        //                {
+        //                    var OrderItems = HttpContext.Session.GetString("OrderItems");
+        //                    List<PubOrderItems> PubOrderItems;
+        //                    if (OrderItems != null) //an order basket already exists
+        //                    {
+        //                        try
+        //                        {
+        //                            PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems); //parse the existing basket
+        //                            foreach (PubOrderItems item in PubOrderItems)
+        //                            {
+        //                                if (item.ItemId == id)
+        //                                {
+        //                                    int newQuantity = item.ItemQuantity + quantity;
+        //                                    if (newQuantity < GlobalConstants.MaxItemsPerOrder)
+        //                                    {
+        //                                        if (newQuantity < Item.ItemStock)
+        //                                        {
+        //                                            item.ItemQuantity = newQuantity;
+        //                                            HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
+        //                                            return PartialView("ToastMessage", ToastAlert.Toast("Item Added", String.Format("{0}x {1} was added to your basket. Total Quantity: {2}", quantity, Item.ItemName, newQuantity), Item.ItemImagePath));
+        //                                        }
+        //                                        else
+        //                                        {
+        //                                            return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError());
+        //                                        }
+        //                                    }
+        //                                    else
+        //                                    {
+        //                                        return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError());
+        //                                    }
+        //                                }
+        //                            }
+        //                        }
+        //                        catch
+        //                        {
+        //                            PubOrderItems = new List<PubOrderItems>(); //if the json cannot be parsed then the session string was corrupt so create a new list.
+        //                        }
+        //                    }
+        //                    else //create new order basket
+        //                    {
+        //                        PubOrderItems = new List<PubOrderItems>(); //create new basket
+        //                    }
+
+        //                    //Update Order Basket session!
+        //                    PubOrderItems.Add(new PubOrderItems() { ItemId = id, ItemQuantity = quantity });
+        //                    HttpContext.Session.SetString("OrderItems", JsonSerializer.Serialize(PubOrderItems));
+
+        //                    return PartialView("ToastMessage", ToastAlert.Toast("Item Added", string.Format("{0}x {1} was added to your basket", quantity, Item.ItemName), Item.ItemImagePath ?? GlobalConstants.DefaultImagePath));
+        //                }
+        //                else
+        //                {
+        //                    return PartialView("ToastMessage", ToastAlert.ItemQuantityMaxError());
+        //                }
+        //            }
+        //            else
+        //            {
+        //                return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError());
+
 
         [HttpGet]
         public IActionResult OrderBasket() //
         {
-            var OrderItems = HttpContext.Session.GetString("OrderItems");
-            if (OrderItems != null)
+            var Session = HttpContext.Session.GetString("PubSession");
+            if (Session != null)
             {
-                List<PubOrderItems> PubOrderItems;
-                try
+                PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                if (pubSession != null) //session exists
                 {
-                    PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems);
-                }
-                catch
-                {
-                    HttpContext.Session.Remove("OrderItems"); //error: orderitems did not contian a list of pub items, reset the session
-                    return View();
-                }
-
-                List<OrderBasketViewModel> OrderBasketList = new List<OrderBasketViewModel>();
-
-                foreach (PubOrderItems item in PubOrderItems)
-                {
-                    PubItems PubItem = _context.GetPubItem(item.ItemId);
-                    if (PubItem != null)
+                    if (pubSession.OrderBasketId != 0) //if basket exists
                     {
-                        OrderBasketList.Add(new OrderBasketViewModel() { ItemQuantity = item.ItemQuantity, PubItem = PubItem });
+                        List<OrderBasketViewModel> BasketItemList = _context.GetPubOrderBasketItems(pubSession.OrderBasketId);
+                        if (BasketItemList != null) //if fetched list of items in basket
+                        {
+                            return View(BasketItemList);
+                        }
                     }
                 }
-                return View(OrderBasketList);
             }
             return View();
+
+
+
+
+
+            //var OrderItems = HttpContext.Session.GetString("OrderItems");
+            //if (OrderItems != null)
+            //{
+            //    List<PubOrderItems> PubOrderItems;
+            //    try
+            //    {
+            //        PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems);
+            //    }
+            //    catch
+            //    {
+            //        HttpContext.Session.Remove("OrderItems"); //error: orderitems did not contian a list of pub items, reset the session
+            //        return View();
+            //    }
+
+            //    List<OrderBasketViewModel> OrderBasketList = new List<OrderBasketViewModel>();
+
+            //    foreach (PubOrderItems item in PubOrderItems)
+            //    {
+            //        PubItems PubItem = _context.GetPubItem(item.ItemId);
+            //        if (PubItem != null)
+            //        {
+            //            OrderBasketList.Add(new OrderBasketViewModel() { ItemQuantity = item.ItemQuantity, PubItem = PubItem });
+            //        }
+            //    }
+            //    return View(OrderBasketList);
+            //}
+            //return View();
         }
 
         //[HttpPost]
-        //public IActionResult OrderBasket()                                    // PUB ORDER CREATION GOES HERE
+        //public IActionResult Order()                                    // PUB ORDER CREATION GOES HERE
         //{
+        //    var userstring = HttpContext.Session.GetString("User");
+        //    if (userstring != null)
+        //    {
+        //        PubUsers User = JsonSerializer.Deserialize<PubUsers>(userstring);
+        //        var OrderItems = HttpContext.Session.GetString("OrderItems");
+        //        if (OrderItems != null)
+        //        {
+        //            List<PubOrderItems> PubOrderItems;
+        //            try
+        //            {
+        //                PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems);
+        //            }
+        //            catch
+        //            {
+        //                HttpContext.Session.Remove("OrderItems"); //error: orderitems did not contian a list of pub items, reset the session
+        //                return RedirectToAction("OrderBasket");
+        //            }
 
+        //            bool valid = true;
+        //            foreach (PubOrderItems item in PubOrderItems)
+        //            {
+        //                PubItems pubItem = _context.GetPubItem(item.ItemId);
+        //                if (pubItem != null)
+        //                {
+        //                    if (pubItem.ItemOnSale)
+        //                    {
+        //                        if (item.ItemQuantity <= pubItem.ItemStock)
+        //                        {
+
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            if (valid)
+        //            {
+        //                int OrderID = _context.AddPubOrder(User.UserId);
+        //                if (OrderID > 0)
+        //                {
+        //                    foreach (PubOrderItems item in PubOrderItems)
+        //                    {
+
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return RedirectToAction("OrderBasket");
         //}
 
         [HttpPost]
