@@ -8,7 +8,7 @@
 <style>
     .deal {
         padding-top: 2rem;
-        padding-bottom:2rem;
+        padding-bottom: 2rem;
         text-align: center;
     }
 
@@ -25,7 +25,7 @@
         margin: auto;
         max-height: inherit;
         width: auto;
-        max-width:100%;
+        max-width: 100%;
     }
 
     .imgDiv {
@@ -47,42 +47,79 @@
         display: block;
     }
 </style>
+
+
 <div class="container">
     <div class="row">
         <div class="col-12 p-5 text-center">
             <a class="display-1 text-dark text-decoration-none" asp-controller="Items" asp-action="Index"> Order Menu </a>
         </div>
     </div>
-    <div class="card-deck">
-        @foreach (PubItems item in Items)
-        {
-            var photoPath = "/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
+    @if (Items != null)
+    {
+        <div class="card-deck">
+
+            @foreach (PubItems item in Items)
+            {
             <div class="card">
-                <div class="imgDiv p-2">
-                    <img src="@photoPath" class="typeImg" alt="...">
-                </div>
-                <div class="card-body">
-                    <h4 class="card-title text-capitalize">@item.ItemName</h4>
-                    <h6 class="card-text font-weight-bold">£@item.ItemPrice.ToString()</h6>
-                    @if (item.ItemStock < 20)
-                    {
-                        <span class="card-text text-warning"> Only @item.ItemStock left! </span>
-                    }
-                    <p class="card-text">@item.ItemDescription</p>
-                </div>
-                <div class="card-buy">
-                    <form method="post" asp-controller="Items" asp-action="AddOrderItem">
-                        <button type="submit" class="btn btn-secondary"> Add </button>
-                        <label asp-for="ItemQuantity"></label>
-                        <input min="1" max="@item.ItemStock" class="form-control w-auto d-inline" asp-for="ItemQuantity" />
-                        <input hidden asp-for="ItemId" value="@item.ItemId" />
-                    </form>
-                </div>
-                <div class="card-footer bg-dark deal">
-                    <a asp-controller="Items" asp-action="Index" asp-route-ItemType="@item.ItemType" class="display-4 text-white"> Order A @item.ItemType.ToString() </a>
+                @if (item != null)
+                {
+                    <div class="imgDiv p-2">
+                        @{ var photoPath = "/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
+                        }
+                        <img src="@photoPath" class="typeImg" alt="...">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title text-capitalize">@item.ItemName</h4>
+                        <h6 class="card-text font-weight-bold">£@item.ItemPrice.ToString()</h6>
+                        @if (item.ItemStock <= 20)
+                        {
+                            <h5 class="card-text text-warning"> Only @item.ItemStock remaining in stock! </h5>
+                        }
+                        else if (item.ItemStock <= 100)
+                        {
+                            <h5 class="card-text text-success"> @item.ItemStock remaining in stock. </h5>
+                        }
+                        else
+                        {
+                            <h5 class="card-text text-success"> Item is in stock. </h5>
+                        }
+                        <p class="card-text">@item.ItemDescription</p>
+                    </div>
+                    <div class="card-buy">
+                        <form method="post" asp-controller="Items" asp-action="AddOrderItem">
+                            <button type="submit" class="btn btn-secondary"> Add </button>
+                            <label asp-for="ItemQuantity"></label>
+                            <input min="1" max="@item.ItemStock" class="form-control w-auto d-inline" asp-for="ItemQuantity" />
+                            <input hidden asp-for="ItemId" value="@item.ItemId" />
+                        </form>
+                    </div>
+                    <div class="card-footer bg-dark deal">
+                        <a asp-controller="Items" asp-action="Index" asp-route-ItemType="@item.ItemType" class="display-4 text-white"> Order A @item.ItemType.ToString() </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="imgDiv p-2">
+                        <img src="/imgs/RedLionText.png" class="typeImg">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title text-danger"> No item found... </h4>
+                    </div>
+                }
+            </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12 p-5 text-center">
+                <div class="col-12 p-5 text-center">
+                    <div class="display-4 text-danger"> Sorry, there are currently no items for sale. </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 

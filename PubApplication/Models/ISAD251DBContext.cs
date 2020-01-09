@@ -40,6 +40,8 @@ namespace PubApplication.Models
         public virtual DbSet<Get_PubOrderBasketItemsViewModel> GetPubOrderBasketItemsResults { get; set; }
         public virtual DbSet<Get_PubOrderItemsViewModel> GetPubOrderItemsResults { get; set; }
         public virtual DbSet<Get_PubOrderViewModel> GetPubOrderResults { get; set; }
+        public virtual DbSet<Get_PubUserOrderItemsViewModel> GetPubUserOrderItemsResults { get; set; }
+        
 
         //public virtual DbSet<Get_PubUserPasswordViewModel> GetPubUserPasswordResults { get; set; }
 
@@ -227,6 +229,36 @@ namespace PubApplication.Models
             return false;
         }
 
+        public bool RemovePubOrder(int OrderID)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Remove_PubOrder @OrderID",
+                    outputParam,
+                    new SqlParameter("@OrderID", OrderID));
+            int result = (int)@outputParam.Value;
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool RemovePubSession(string SessionID)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Remove_PubSession @SessionID",
+                    outputParam,
+                    new SqlParameter("@SessionID", SessionID));
+            int result = (int)@outputParam.Value;
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public PubUsers GetPubUser(int UserId)
         {
             var results = GetPubUserResults.FromSqlRaw("EXEC Get_PubUser @UserID", 
@@ -255,6 +287,46 @@ namespace PubApplication.Models
                 new SqlParameter("@OrderID", OrderID)).ToList();
             if (results.Count() > 0) {
                 return results.First();
+            }
+            else
+            {
+                return null; //no results returned - order dosen't exist in DB so give nothing.
+            }
+        }
+
+        public PubOrdersViewModel GetPubOrders(int? UserID, int PageNumber)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+            
+            var results = GetPubOrderResults.FromSqlRaw("EXEC @outputParam=Get_PubOrders @UserID, @PageNumber, @ItemsPerPage",
+                outputParam,
+                new SqlParameter("@UserID", UserID ?? 0),
+                new SqlParameter("@PageNumber", PageNumber),
+                new SqlParameter("@ItemsPerPage", GlobalConstants.OrdersPerPage)).ToList();
+            if (results.Count() > 0)
+            {
+                List<UserOrderViewModel> userOrderViewModel = new List<UserOrderViewModel>();
+                foreach (Get_PubOrderViewModel order in results)
+                {
+                    List<Get_PubUserOrderItemsViewModel> items = GetPubUserOrderItems(order.OrderId);
+                    userOrderViewModel.Add(new UserOrderViewModel() { OrderDetails = order, OrderTopItems = items });
+                }
+
+                return new PubOrdersViewModel() { Orders = userOrderViewModel, RowCount = (int)outputParam.Value };
+            }
+            else
+            {
+                return null; //no results returned - order dosen't exist in DB so give nothing.
+            }
+        }
+
+        public List<Get_PubUserOrderItemsViewModel> GetPubUserOrderItems(int OrderID)
+        {
+            var results = GetPubUserOrderItemsResults.FromSqlRaw("EXEC Get_PubUserOrderItems @OrderID",
+            new SqlParameter("@OrderID", OrderID)).ToList();
+            if (results.Count() > 0)
+            {
+                return results;
             }
             else
             {
@@ -562,19 +634,6 @@ namespace PubApplication.Models
                     .HasMaxLength(5)
                     .IsUnicode(false);
             });
-
-            modelBuilder.Entity<Get_PubOrderViewModel>(entity =>
-            {
-                entity.HasKey(e => new { e.OrderId, e.UserId });
-
-                entity.Property(e => e.OrderId).HasColumnName("OrderID");
-
-                entity.Property(e => e.UserId).HasColumnName("UserID");
-
-                entity.Property(e => e.OrderDate).HasColumnName("OrderDate");
-            });
-
-            modelBuilder.Entity<Get_PubOrderViewModel>().HasKey(c => new { c.OrderId, c.UserId });
 
             modelBuilder.Entity<PubOrderItems>(entity =>
             {

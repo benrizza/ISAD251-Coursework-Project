@@ -27,20 +27,60 @@ namespace PubApplication.Controllers
 
         public IActionResult Index(string ItemName, ItemTypes? ItemType, bool? ItemOnSale, int? PageNumber) //as this is the default view, only show items on sale
         {
-            PubItemsViewModel model;
-            if (ItemType == null)
+            UserAccessRank userAccessRank = UserAccessRank.Customer;
+            var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view orders
+            if (Session != null)
             {
-                model = _context.GetPubItems(ItemName, ItemOnSale ?? true, PageNumber ?? 0); //true - get only items on sale
+                PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                if (pubSession != null) //session exists
+                {
+                    if (pubSession.UserId > 0) //if a user is logged in...
+                    {
+                        PubUsers pubUser = _context.GetPubUser(pubSession.UserId);
+                        if (pubUser != null) //if user exists
+                        {
+                            userAccessRank = pubUser.UserAccessRank;
+                        }
+                    }
+                }
             }
-            else
+            ViewBag.UserAccessRank = userAccessRank;
+            PubItemsViewModel model;
+
+            if (userAccessRank == UserAccessRank.Admin) //if admin then admin can specify if items are on sale or not.
             {
-                model = _context.GetPubItems(ItemName, ItemOnSale ?? true, PageNumber ?? 0, (ItemTypes)ItemType); //true - get only items on sale
+                if (ItemType == null)
+                {
+                    model = _context.GetPubItems(ItemName, ItemOnSale ?? true, PageNumber ?? 0); //true - get only items on sale
+                }
+                else
+                {
+                    model = _context.GetPubItems(ItemName, ItemOnSale ?? true, PageNumber ?? 0, (ItemTypes)ItemType); //true - get only items on sale
+                }
+
+                if (model != null)
+                {
+                    ViewBag.PubItemsViewModel = model;
+                }
+            }
+            else //if not admin items will always be on sale
+            {
+                if (ItemType == null)
+                {
+                    model = _context.GetPubItems(ItemName, true, PageNumber ?? 0); //true - get only items on sale
+                }
+                else
+                {
+                    model = _context.GetPubItems(ItemName, true, PageNumber ?? 0, (ItemTypes)ItemType); //true - get only items on sale
+                }
+
+                if (model != null)
+                {
+                    ViewBag.PubItemsViewModel = model;
+                }
             }
 
-            if (model != null)
-            {
-                ViewBag.PubItemsViewModel = model;
-            }
+
             object data;
             TempData.TryGetValue("ToastMessage", out data);
             if (data != null)
@@ -53,12 +93,20 @@ namespace PubApplication.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            if (!(HttpContext.Session.GetString("User") == null))
+            var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view orders
+            if (Session != null)
             {
-                var user = JsonSerializer.Deserialize<PubUsers>(HttpContext.Session.GetString("User")); //if user is an admin then allow them access to the create page
-                if (user.UserAccessRank == Models.Enum.UserAccessRank.Admin)
+                PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                if (pubSession != null) //session exists
                 {
-                    return View(new CreateItemViewModel());
+                    if (pubSession.UserId > 0) //if a user is logged in...
+                    {
+                        PubUsers pubUser = _context.GetPubUser(pubSession.UserId);
+                        if (pubUser != null && pubUser.UserAccessRank == UserAccessRank.Admin) //if user exists and is an admin
+                        {
+                            return View(new CreateItemViewModel());
+                        }
+                    }
                 }
             }
             return RedirectToAction("Index", "Home");
@@ -69,23 +117,38 @@ namespace PubApplication.Controllers
         {
             if (id != null)
             {
-                int itemID = (int)id;
-                PubItems item = _context.GetPubItem(itemID);
-
-                if (item != null)
+                var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view orders
+                if (Session != null)
                 {
-                    EditItemViewModel model = new EditItemViewModel
+                    PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                    if (pubSession != null) //session exists
                     {
-                        ItemID = itemID,
-                        ItemExistingImagePath = item.ItemImagePath,
-                        ItemDescription = item.ItemDescription,
-                        ItemName = item.ItemName,
-                        ItemOnSale = item.ItemOnSale,
-                        ItemPrice = item.ItemPrice,
-                        ItemStock = item.ItemStock,
-                        ItemType = item.ItemType,
-                    };
-                    return View(model);
+                        if (pubSession.UserId > 0) //if a user is logged in...
+                        {
+                            PubUsers pubUser = _context.GetPubUser(pubSession.UserId);
+                            if (pubUser != null && pubUser.UserAccessRank == UserAccessRank.Admin) //if user exists and is an admin then allow access to edit page.
+                            {
+                                int itemID = (int)id;
+                                PubItems item = _context.GetPubItem(itemID);
+
+                                if (item != null)
+                                {
+                                    EditItemViewModel model = new EditItemViewModel
+                                    {
+                                        ItemID = itemID,
+                                        ItemExistingImagePath = item.ItemImagePath,
+                                        ItemDescription = item.ItemDescription,
+                                        ItemName = item.ItemName,
+                                        ItemOnSale = item.ItemOnSale,
+                                        ItemPrice = item.ItemPrice,
+                                        ItemStock = item.ItemStock,
+                                        ItemType = item.ItemType,
+                                    };
+                                    return View(model);
+                                }
+                            }
+                        }
+                    }
                 }
             }
             return RedirectToAction("Index", "Home");
@@ -98,11 +161,32 @@ namespace PubApplication.Controllers
                 PubItems Item = _context.GetPubItem((int)id);
                 if (Item != null)
                 {
-                    ViewBag.Item = Item;
-                    return View(new AddOrderItemViewModel());
+                    UserAccessRank userAccessRank = UserAccessRank.Customer;
+                    var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view orders
+                    if (Session != null)
+                    {
+                        PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                        if (pubSession != null) //session exists
+                        {
+                            if (pubSession.UserId > 0) //if a user is logged in...
+                            {
+                                PubUsers pubUser = _context.GetPubUser(pubSession.UserId);
+                                if (pubUser != null) //if user exists
+                                {
+                                    userAccessRank = pubUser.UserAccessRank;
+                                }
+                            }
+                        }
+                    }
+                    if (Item.ItemOnSale || userAccessRank == UserAccessRank.Admin)
+                    {
+                        ViewBag.UserAccessRank = userAccessRank; //get access rank as admins will be able be able to press a button to go to edit item page.
+                        ViewBag.Item = Item;
+                        return View(new AddOrderItemViewModel());
+                    }
                 }
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -470,6 +554,13 @@ namespace PubApplication.Controllers
         [HttpGet]
         public IActionResult OrderBasket() //
         {
+            object data;
+            TempData.TryGetValue("ToastMessage", out data);
+            if (data != null)
+            {
+                ViewBag.Toast = JsonSerializer.Deserialize<ToastAlertViewModel>(data as string);
+            }
+
             var Session = HttpContext.Session.GetString("PubSession");
             if (Session != null)
             {
@@ -575,44 +666,61 @@ namespace PubApplication.Controllers
         [HttpPost]
         public IActionResult Edit(EditItemViewModel model)
         {
-            if (ModelState.IsValid)
+            var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view orders
+            if (Session != null)
             {
-                PubItems EditedItem = new PubItems()
+                PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                if (pubSession != null) //session exists
                 {
-                    ItemId = model.ItemID,
-                    ItemDescription = model.ItemDescription,
-                    ItemName = model.ItemName,
-                    ItemOnSale = model.ItemOnSale,
-                    ItemPrice = model.ItemPrice,
-                    ItemStock = model.ItemStock,
-                    ItemType = model.ItemType,
-                    ItemImagePath = model.ItemExistingImagePath
-                    };
-
-                if (model.ItemImage != null)
-                {
-                    if (model.ItemExistingImagePath != null)
+                    if (pubSession.UserId > 0) //if a user is logged in...
                     {
-                        string existingFilePath = Path.Combine(webHostEnvironment.WebRootPath, "imgs", model.ItemExistingImagePath);
-                        System.IO.File.Delete(existingFilePath);
+                        PubUsers pubUser = _context.GetPubUser(pubSession.UserId);
+                        if (pubUser != null && pubUser.UserAccessRank == UserAccessRank.Admin) //if user exists
+                        {
+                            if (ModelState.IsValid) //user is an admin, allow access to editing.
+                            {
+
+                                PubItems EditedItem = new PubItems()
+                                {
+                                    ItemId = model.ItemID,
+                                    ItemDescription = model.ItemDescription,
+                                    ItemName = model.ItemName,
+                                    ItemOnSale = model.ItemOnSale,
+                                    ItemPrice = model.ItemPrice,
+                                    ItemStock = model.ItemStock,
+                                    ItemType = model.ItemType,
+                                    ItemImagePath = model.ItemExistingImagePath
+                                };
+
+                                if (model.ItemImage != null)
+                                {
+                                    if (model.ItemExistingImagePath != null)
+                                    {
+                                        string existingFilePath = Path.Combine(webHostEnvironment.WebRootPath, "imgs", model.ItemExistingImagePath);
+                                        System.IO.File.Delete(existingFilePath);
+                                    }
+                                    EditedItem.ItemImagePath = ProcessUploadedFile(model);
+                                }
+
+                                //int result = _context.AddPubItem();
+
+                                if (_context.EditPubItem(EditedItem) == true)
+                                {
+                                    return RedirectToAction("Details", new { id = EditedItem.ItemId });
+                                }
+                                else
+                                {
+                                    ModelState.AddModelError("", "An error occured, could not create a new item.");
+                                    //ERROR: item was not added
+                                }
+                            }
+                            return View(model);
+                        }
                     }
-                    EditedItem.ItemImagePath = ProcessUploadedFile(model);
-                }
-
-                //int result = _context.AddPubItem();
-
-                if (_context.EditPubItem(EditedItem) == true)
-                {
-                    return RedirectToAction("Details", new { id = EditedItem.ItemId });
-                }
-                else
-                {
-                    ModelState.AddModelError("", "An error occured, could not create a new item.");
-                    //ERROR: item was not added
                 }
             }
-            return View(model);
-        }
+            return RedirectToAction("Index", "Home");
+        }   
 
         private string ProcessUploadedFile(CreateItemViewModel model)
         {

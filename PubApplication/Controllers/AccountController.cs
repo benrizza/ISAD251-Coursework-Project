@@ -66,8 +66,10 @@ namespace PubApplication.Controllers
                             {
                                 UserOrderBasketID = user.UserOrderBasketID;
                             }
-                            _context.UpdatePubSession(SessionString, user.UserId, UserOrderBasketID);
-                            return View("RegistrationSuccess",user);
+                            if (_context.UpdatePubSession(SessionString, user.UserId, UserOrderBasketID))
+                            {
+                                return View("RegistrationSuccess", user);
+                            }                          
                         }
                     }
                     //create session with user
@@ -170,26 +172,19 @@ namespace PubApplication.Controllers
         }
 
         [HttpPost]
-        public IActionResult Logout(string returnController, string returnAction)
+        public IActionResult Logout()
         {
             var SessionString = HttpContext.Session.GetString("PubSession");
             if (SessionString != null)
             {
                 PubSessions pubSessions = _context.GetPubSession(SessionString);
-                if (pubSessions != null & pubSessions.UserId > 0 )
+                if (pubSessions != null)
                 {
-                    _context.UpdatePubSession(pubSessions.SessionId, 0, null);
+                    _context.RemovePubSession(pubSessions.SessionId);
+                    HttpContext.Session.Remove("PubSession");
                 }                                                                    
             }
-            if (returnController == null)
-            {
-
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                return RedirectToAction(returnAction, returnController);
-            }
+            return RedirectToAction("Index", "Home");
         }
     }
 }

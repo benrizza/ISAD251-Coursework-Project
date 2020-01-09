@@ -23,11 +23,18 @@ namespace PubApplication.Controllers
 
         public IActionResult Index()
         {
-            List<PubItems> RandomItems = new List<PubItems>
+            List<PubItems> RandomItems;
+            PubItems randomSnack = _context.GetRandomPubItem(Models.Enum.ItemTypes.Snack, true);  //get random item of type drink that is on sale.
+            PubItems randomDrink = _context.GetRandomPubItem(Models.Enum.ItemTypes.Drink, true);
+
+            if (randomSnack != null || randomDrink != null)
             {
-                _context.GetRandomPubItem(Models.Enum.ItemTypes.Drink, true), //get random item of type drink that is on sale.
-                _context.GetRandomPubItem(Models.Enum.ItemTypes.Snack, true)
-            };
+                RandomItems = new List<PubItems> { randomDrink, randomSnack };
+            }
+            else
+            {
+                RandomItems = null;
+            }
 
             ViewBag.ViewItems = RandomItems;
             ViewBag.returnController = ControllerContext.RouteData.Values["controller"].ToString();

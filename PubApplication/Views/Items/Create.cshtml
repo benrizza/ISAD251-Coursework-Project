@@ -32,7 +32,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label asp-for="ItemStock"></label>
-                        <input min="1" max="@GlobalConstants.MaxItemsPerOrder" asp-for="ItemStock" class="form-control" />
+                        <input min="0" max="@int.MaxValue" asp-for="ItemStock" class="form-control" />
                         <span asp-validation-for="ItemStock" class="text-danger"></span>
                     </div>
                 </div>

@@ -486,3 +486,4 @@ C:\Users\benri\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Shared\Components\LoggedInUser\Default.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Orders\Index.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Orders\Order.cshtml.g.cs
+C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Debug\netcoreapp3.0\Razor\Views\Orders\CancelOrder.cshtml.g.cs

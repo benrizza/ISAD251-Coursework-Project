@@ -1,11 +1,126 @@
-﻿@{
+﻿@model FilterOrdersViewModel
+@{
+    UserAccessRank userRank = ViewBag.UserAccessRank;
+    PubOrdersViewModel ViewModel = ViewBag.PubOrdersViewModel;
 
-
-    ViewData["Title"] = "Order";
+    if (ViewModel != null)
+    {
+        ViewData["Title"] = "Orders";
+    }
+    else
+    {
+        ViewData["Title"] = "Error";
+    }
 }
+<style>
+    .CardImage {
+        min-height: 125px;
+        max-height: 175px;
+        max-width: 100%;
+        display: block;
+        width: initial;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
 
 
+<div class="container">
+    <div class="row p-2">
+        @if (Model.UserID > 0)
+        {
+            <div class="display-2 col-12 text-center">
+                User ID @Model.UserID's Orders
+            </div>
+        }
+        else
+        {
+            <div class="display-2 col-12 text-center">
+                Orders
+            </div>
+        }
+    </div>
 
+    <div class="row pt-2 pb-3">
+        <div class="col-12">
+            @if (userRank == UserAccessRank.Admin)
+            {
+                <form method="get">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend GroupText">
+                            <label class="input-group-text" asp-for="UserID"></label>
+                        </div>
+                        <input min="0" max="@int.MaxValue" asp-for="UserID" class="form-control" placeholder="Enter User ID">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </div>
+                    </div>
+                </form>
+            }
+            @if (ViewModel != null)
+            {
+                int NumOfPages = (ViewModel.RowCount + GlobalConstants.OrdersPerPage - 1) / GlobalConstants.OrdersPerPage; //24 items per page
 
-<h1>Index</h1>
-
+                int PageUp = Model.PageNumber + 1;
+                int PageDown = Model.PageNumber - 1;
+                <div class="input-group ml-auto">
+                    @if (PageDown >= 0) //can't go to a page that has nothing on it!
+                    {
+                        <div class="input-group-prepend">
+                            <a class="btn btn-primary" asp-controller="Items" asp-action="Index" asp-route-id="@Model.UserID" asp-route-PageNumber="@PageDown"> Page Down </a>
+                        </div>
+                    }
+                    <label class="input-group-text"> Page: @(Model.PageNumber + 1)/@NumOfPages </label>
+                    @if (PageUp < NumOfPages) //can't have -1 pages!
+                    {
+                        <div class="input-group-append">
+                            <a class="btn btn-primary" asp-controller="Items" asp-action="Index" asp-route-id="@Model.UserID" asp-route-PageNumber="@PageUp"> Page Up </a>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    @if (ViewModel != null)
+    {
+        @foreach (UserOrderViewModel order in ViewModel.Orders)
+        {
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="row no-gutters">
+                            <div class="card-body">
+                                <h5 class="card-title">Order ID: @order.OrderDetails.OrderId </h5>
+                                <h6 class="card-text"> Date: @order.OrderDetails.OrderDate.ToString() </h6>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        @foreach (Get_PubUserOrderItemsViewModel item in order.OrderTopItems)
+                                        {
+                                            <p> @item.ItemName </p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="text-right">
+                                            <h5 class="font-weight-bold m-auto pr-3 d-inline-block" style="vertical-align:middle"> Total Order Price: £@order.OrderDetails.OrderTotalCost </h5>
+                                            <a asp-action="Order" asp-route-id="@order.OrderDetails.OrderId" class="btn btn-primary"> View Order </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="row p-2">
+            <div class="display-4 col-12 text-center text-danger">
+                No orders were found.
+            </div>
+        </div>
+    }
+</div>

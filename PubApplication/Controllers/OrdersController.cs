@@ -21,9 +21,44 @@ namespace PubApplication.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(int id) //get order
+        public IActionResult Index(int? UserID, int? PageNumber) //get user id
         {
-            return View();
+            var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view orders
+            if (Session != null)
+            {
+                PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                if (pubSession != null) //session exists
+                {
+                    if (pubSession.UserId > 0) //if a user is logged in...
+                    {
+                        PubUsers pubUser = _context.GetPubUser(pubSession.UserId);
+                        if (pubUser != null) //if user exists
+                        {
+                            int? ID;
+                            if (pubUser.UserAccessRank == Models.Enum.UserAccessRank.Admin)
+                            {
+                                if (UserID != null && UserID > 0)
+                                {
+                                    ID = UserID;
+                                }
+                                else
+                                {
+                                    ID = null;
+                                }
+                            }
+                            else
+                            {
+                                ID = pubUser.UserId;
+                            }
+                            int pageNumber = PageNumber ?? 0;
+                            ViewBag.UserAccessRank = pubUser.UserAccessRank;
+                            ViewBag.PubOrdersViewModel = _context.GetPubOrders(ID, pageNumber);
+                            return View(new FilterOrdersViewModel { UserID = ID, PageNumber = pageNumber });
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -45,9 +80,13 @@ namespace PubApplication.Controllers
                                 Get_PubOrderViewModel OrderDetails = _context.GetPubOrder((int)id);
                                 if (OrderDetails != null && (OrderDetails.UserId == pubUsers.UserId || pubUsers.UserAccessRank == Models.Enum.UserAccessRank.Admin)) //only logged in user and admins are allowed to view.
                                 {
-                                    OrderViewModel orderViewModel = new OrderViewModel();
-                                    orderViewModel.OrderDetails = OrderDetails;
-                                    orderViewModel.OrderItems = _context.GetPubOrderItems((int)id);
+                                    OrderViewModel orderViewModel = new OrderViewModel
+                                    {
+                                        OrderDetails = OrderDetails,
+                                        OrderItems = _context.GetPubOrderItems((int)id)
+                                    };
+                                    ViewBag.LoggedInUserID = pubUsers.UserId;
+                                    ViewBag.UserAccessRank = pubUsers.UserAccessRank;
                                     return View(orderViewModel);
                                 }
                             }
@@ -56,6 +95,43 @@ namespace PubApplication.Controllers
                 }
             }
             return RedirectToAction("Index","Home");
+        }
+
+        [HttpPost]
+        public IActionResult CancelOrder(int id)
+        {
+            if (id > 0) //all ids are bigger than 0
+            {
+                var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view an order
+                if (Session != null)
+                {
+                    PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                    if (pubSession != null) //session exists
+                    {
+                        if (pubSession.UserId > 0) //if a user is logged in...
+                        {
+                            PubUsers pubUsers = _context.GetPubUser(pubSession.UserId); //fetch logged in user....
+                            if (pubUsers != null) //if user exists...
+                            {
+                                Get_PubOrderViewModel Order = _context.GetPubOrder(id);
+                                if (Order != null)
+                                {
+                                    if (Order.UserId == pubUsers.UserId)
+                                    {
+                                        if (_context.RemovePubOrder(id))
+                                        {
+                                            ViewBag.RemovedOrderID = id;
+                                            return View();
+                                        }
+                                    }
+                                    return RedirectToAction("Order", new { id });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
@@ -79,7 +155,7 @@ namespace PubApplication.Controllers
                                     if (basketitem.ItemQuantity > basketitem.PubItem.ItemStock)
                                     {
                                         TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Error", "Item request quantity cannot exceede item stock.", basketitem.PubItem.ItemImagePath));
-                                        return RedirectToAction("Items", "OrderBasket");
+                                        return RedirectToAction("OrderBasket", "Items");
                                     }
                                 }
                                 int OrderID = _context.CreateOrder(pubSession.OrderBasketId, pubSession.UserId, pubSession.SessionId);
@@ -102,15 +178,5 @@ namespace PubApplication.Controllers
             }
             return RedirectToAction("OrderBasket", "Items");
         }
-
-        //[HttpGet]
-        //public IActionResult Get
-        //{
-
-        //}
-
-
-
-
     }
 }

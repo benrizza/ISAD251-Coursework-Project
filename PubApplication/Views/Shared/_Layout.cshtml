@@ -61,6 +61,9 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ml-auto">
+
+                        @await Component.InvokeAsync("LoggedInUser") @*get login bar*@
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" id="navbardrop" data-toggle="dropdown"> Order Basket </a>
                             <div class="dropdown-menu dropdown-menu-right basketDropDown">
@@ -88,8 +91,8 @@
                                 </form>
                             </div>
                         </li>
-                        
-                        @await Component.InvokeAsync("LoggedInUser")
+
+
                         @*@if (!(user == null))
         {
             <li class="navbar-text text-dark text-capitalize"> Welcome, @user.UserFirstName @user.UserLastName </li>

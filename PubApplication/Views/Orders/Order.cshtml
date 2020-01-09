@@ -2,6 +2,7 @@
 @model OrderViewModel
 
 @{
+    int LoggedInUserID = ViewBag.LoggedInUserID;
     if (Model != null)
     {
         ViewData["Title"] = "Order " + Model.OrderDetails.OrderId.ToString();
@@ -30,11 +31,9 @@
     <div class="container">
         @if (Model != null)
         {
-            decimal totalcost = 0;
-            foreach (Get_PubOrderItemsViewModel item in Model.OrderItems)
-            {
-                totalcost = +(decimal)item.ItemQuantity * item.ItemOrderPrice;
-            }
+            <div class="row mt-2">
+                <a asp-action="Index" asp-controller="Orders" asp-route-UserID="@Model.OrderDetails.UserId" class="btn btn-primary AddOrderButton"> Back To Orders </a>
+            </div>
             <div class="row p-2">
                 <div class="display-2 col-12 text-center">
                     Order ID: @Model.OrderDetails.OrderId
@@ -42,15 +41,22 @@
             </div>
             <div class="row p-2">
                 <div class="col-12 text-center">
-                    <h2> Date Of Order: @Model.OrderDetails.OrderDate.ToString()</h2>
+                    <h3> Date Of Order: @Model.OrderDetails.OrderDate.ToString()</h3>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 text-right">
-                    <form method="post" asp-action="Cancel">
-                        <h4 class="font-weight-bold m-auto d-inline-block" style="vertical-align:middle"> Order Total Price: £@totalcost.ToString("F") </h4>
+                    @if (Model.OrderDetails.UserId == LoggedInUserID)
+                    {
+                    <form method="post" asp-controller="Orders" asp-action="CancelOrder">
+                        <input type="hidden" name="id" value="@Model.OrderDetails.OrderId" />
+                        <h4 class="font-weight-bold m-auto d-inline-block" style="vertical-align:middle"> Order Total Price: £@Model.OrderDetails.OrderTotalCost.ToString("F") </h4>
                         <button type="submit" class="btn btn-danger d-inline-block"> Cancel Order </button>
                     </form>
+                    }
+                    else {
+                        <h4 class="font-weight-bold m-auto d-inline-block" style="vertical-align:middle"> Order Total Price: £@Model.OrderDetails.OrderTotalCost.ToString("F") </h4>
+                    }
                 </div>
             </div>
             @foreach (Get_PubOrderItemsViewModel item in Model.OrderItems)
@@ -98,8 +104,8 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="text-right">
-                                                    <h5 class="font-weight-bold m-auto d-inline-block" style="vertical-align:middle"> Total Price: £@totalprice</h5>
-                                                    <a asp-action="Details" asp-controller="Items" asp-route-id="@item.ItemId" class="btn btn-primary AddOrderButton"> View Item </a>
+                                                    <h5 class="font-weight-bold m-2 d-inline-block" style="vertical-align:middle"> Total Price: £@totalprice</h5>
+                                                    <a asp-action="Details" asp-controller="Items" asp-route-id="@item.ItemId" class="btn btn-primary"> View Item </a>
                                                 </div>
                                             </div>
                                         </div>

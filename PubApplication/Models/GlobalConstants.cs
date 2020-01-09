@@ -8,6 +8,7 @@ namespace PubApplication.Models
     public class GlobalConstants
     {
         public const int ItemsPerPage = 30;
+        public const int OrdersPerPage = 30;
         public const string DefaultImagePath = "RedLionText.png";
         public const int MaxItemsPerOrder = 100;
     }

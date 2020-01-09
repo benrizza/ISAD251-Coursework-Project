@@ -21,7 +21,10 @@
 <div aria-live="polite" aria-atomic="true" style="width:100%; left:0; position: fixed; top: 0px; z-index:10">
     <!-- Position it -->
     <div class="p-2" style="position: absolute; top: 0; right: 0;" href="#" id="ToastyMessage">
-
+        @if (ViewBag.Toast != null)
+        {
+            await Html.RenderPartialAsync("ToastMessage", (ToastAlertViewModel)ViewBag.Toast);
+        }
     </div>
 </div>
 
@@ -129,6 +132,8 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            $('.toast').toast('show'); //show given toast message from controller - nothing will show if there is no message
+
             function UpdateItemQuantity(id, quantity) {
                 var postData = {
                     "itemID": id,
