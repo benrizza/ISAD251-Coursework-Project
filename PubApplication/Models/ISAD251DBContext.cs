@@ -38,6 +38,8 @@ namespace PubApplication.Models
         public virtual DbSet<Get_PubItemsViewModel> GetPubItemsResults { get; set; }
         public virtual DbSet<Get_PubUserDetailsViewModel> GetPubUserDetailsResults { get; set; }
         public virtual DbSet<Get_PubOrderBasketItemsViewModel> GetPubOrderBasketItemsResults { get; set; }
+        public virtual DbSet<Get_PubOrderItemsViewModel> GetPubOrderItemsResults { get; set; }
+        public virtual DbSet<Get_PubOrderViewModel> GetPubOrderResults { get; set; }
 
         //public virtual DbSet<Get_PubUserPasswordViewModel> GetPubUserPasswordResults { get; set; }
 
@@ -129,7 +131,7 @@ namespace PubApplication.Models
             }
         }
 
-        public int CreatePubSessionOrderBasket(string SessionID, int? OrderBasketID) //take in user ID return the order ID
+        public int CreatePubSessionOrderBasket(string SessionID, int? OrderBasketID)
         {
             SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
 
@@ -138,6 +140,18 @@ namespace PubApplication.Models
                     new SqlParameter("@SessionID", SessionID),
                     new SqlParameter("@OrderBasketID", OrderBasketID ?? 0));
             return (int)@outputParam.Value; //order basket id is returned
+        }
+
+        public int CreateOrder(int OrderBasketID, int UserID, string SessionID)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Create_PubOrder @UserID, @OrderBasketID, @SessionID",
+                    outputParam,
+                    new SqlParameter("@UserID", UserID),
+                    new SqlParameter("@OrderBasketID", OrderBasketID),
+                    new SqlParameter("@SessionID", SessionID));
+            return (int)@outputParam.Value; //order id is returned
         }
 
         public bool EditPubOrderBasketItem(int OrderBasketID, int ItemID, int ItemQuantity)
@@ -232,6 +246,32 @@ namespace PubApplication.Models
             else
             {
                 return null; //no results returned - user ID dosen't exist in DB so give nothing.
+            }
+        }
+
+        public Get_PubOrderViewModel GetPubOrder(int OrderID)
+        {
+            var results = GetPubOrderResults.FromSqlRaw("EXEC Get_PubOrder @OrderID",
+                new SqlParameter("@OrderID", OrderID)).ToList();
+            if (results.Count() > 0) {
+                return results.First();
+            }
+            else
+            {
+                return null; //no results returned - order dosen't exist in DB so give nothing.
+            }
+        }
+
+        public List<Get_PubOrderItemsViewModel> GetPubOrderItems(int OrderID)
+        {
+            var results = GetPubOrderItemsResults.FromSqlRaw("EXEC Get_PubOrderItems @OrderID",
+            new SqlParameter("@OrderID", OrderID)).ToList();
+            if (results.Count() > 0) {
+                return results;
+            }
+            else
+            {
+                return null; //no results returned - order dosen't exist in DB so give nothing.
             }
         }
 
@@ -522,6 +562,19 @@ namespace PubApplication.Models
                     .HasMaxLength(5)
                     .IsUnicode(false);
             });
+
+            modelBuilder.Entity<Get_PubOrderViewModel>(entity =>
+            {
+                entity.HasKey(e => new { e.OrderId, e.UserId });
+
+                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.Property(e => e.OrderDate).HasColumnName("OrderDate");
+            });
+
+            modelBuilder.Entity<Get_PubOrderViewModel>().HasKey(c => new { c.OrderId, c.UserId });
 
             modelBuilder.Entity<PubOrderItems>(entity =>
             {

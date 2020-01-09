@@ -66,17 +66,8 @@ namespace PubApplication.Controllers
                             {
                                 UserOrderBasketID = user.UserOrderBasketID;
                             }
-                            if (_context.UpdatePubSession(SessionString, user.UserId, UserOrderBasketID))
-                            {
-                                return View("RegistrationSuccess");
-                            }
-                            else
-                            {
-                                //error
-                                ModelState.AddModelError("ERROR", "An Error has occoured, you could not be logged in.");
-                                return View("RegistrationSuccess");
-                            }
-
+                            _context.UpdatePubSession(SessionString, user.UserId, UserOrderBasketID);
+                            return View("RegistrationSuccess",user);
                         }
                     }
                     //create session with user
@@ -84,13 +75,8 @@ namespace PubApplication.Controllers
                     if (SessionString != null)
                     {
                         HttpContext.Session.SetString("PubSession", SessionString);
-                        return View("RegistrationSuccess");
                     }
-                    else
-                    {
-                        ModelState.AddModelError("ERROR", "An Error has occoured, you could not be logged in.");
-                        return View("RegistrationSuccess");
-                    }
+                    return View("RegistrationSuccess",user);
                 } 
                 else {
                     ModelState.AddModelError("", "An error occured, could not create a new account.");

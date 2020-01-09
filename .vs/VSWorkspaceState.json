@@ -6,6 +6,7 @@
     "\\PubApplication\\Models",
     "\\PubApplication\\Views",
     "\\PubApplication\\Views\\Home",
+    "\\PubApplication\\Views\\Items",
     "\\PubApplication\\Views\\Shared"
   ],
   "SelectedNode": "\\PubApplication\\PubApplication.sln",

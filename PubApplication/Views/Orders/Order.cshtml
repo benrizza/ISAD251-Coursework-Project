@@ -1,0 +1,122 @@
+﻿
+@model OrderViewModel
+
+@{
+    if (Model != null)
+    {
+        ViewData["Title"] = "Order " + Model.OrderDetails.OrderId.ToString();
+    }
+    else
+    {
+        ViewData["Title"] = "Error";
+    }
+
+
+
+}
+    <style>
+        .CardImage {
+            min-height: 125px;
+            max-height: 175px;
+            max-width: 100%;
+            display: block;
+            width: initial;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+
+
+    <div class="container">
+        @if (Model != null)
+        {
+            decimal totalcost = 0;
+            foreach (Get_PubOrderItemsViewModel item in Model.OrderItems)
+            {
+                totalcost = +(decimal)item.ItemQuantity * item.ItemOrderPrice;
+            }
+            <div class="row p-2">
+                <div class="display-2 col-12 text-center">
+                    Order ID: @Model.OrderDetails.OrderId
+                </div>
+            </div>
+            <div class="row p-2">
+                <div class="col-12 text-center">
+                    <h2> Date Of Order: @Model.OrderDetails.OrderDate.ToString()</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-right">
+                    <form method="post" asp-action="Cancel">
+                        <h4 class="font-weight-bold m-auto d-inline-block" style="vertical-align:middle"> Order Total Price: £@totalcost.ToString("F") </h4>
+                        <button type="submit" class="btn btn-danger d-inline-block"> Cancel Order </button>
+                    </form>
+                </div>
+            </div>
+            @foreach (Get_PubOrderItemsViewModel item in Model.OrderItems)
+            {
+                var photoPath = "~/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
+                var totalprice = item.ItemQuantity * item.ItemOrderPrice;
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="row no-gutters">
+                                <div class="col-md-3">
+                                    <img asp-append-version="true" src="@photoPath" class="CardImage card-img p-3">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.ItemName</h5>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h6 class="card-text"> Type: @item.ItemType</h6>           
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h6 class="card-text d-inline-block"> Price: £@item.ItemOrderPrice </h6>
+                                                <h6 class="card-text d-inline-block"> Quantity: @item.ItemQuantity Item/s </h6>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                @if (item.ItemDescription.Length > 300)
+                                                {
+                                                    string description = new string(item.ItemDescription.Take(300).ToArray());
+                                                    <h6 class="card-text">
+                                                        Description: @description ...
+                                                    </h6>
+                                                }
+                                                else
+                                                {
+                                                    <h6 class="card-text">
+                                                        Description: @item.ItemDescription
+                                                    </h6>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="text-right">
+                                                    <h5 class="font-weight-bold m-auto d-inline-block" style="vertical-align:middle"> Total Price: £@totalprice</h5>
+                                                    <a asp-action="Details" asp-controller="Items" asp-route-id="@item.ItemId" class="btn btn-primary AddOrderButton"> View Item </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="row p-2">
+                <div class="display-2 col-12 text-center text-warning">
+                    The order you requested does not exist.
+                </div>
+            </div>
+        }
+    </div>

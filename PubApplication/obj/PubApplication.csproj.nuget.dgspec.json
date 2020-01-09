@@ -1,26 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\benri\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {}
+    "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {}
   },
   "projects": {
-    "C:\\Users\\benri\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {
+    "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\benri\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
+        "projectUniqueName": "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
         "projectName": "PubApplication",
-        "projectPath": "C:\\Users\\benri\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
-        "packagesPath": "C:\\Users\\benri\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\benri\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\obj\\",
+        "projectPath": "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\PubApplication.csproj",
+        "packagesPath": "C:\\Users\\Ben\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Ben\\Source\\Repos\\ISAD251-Coursework-Project\\PubApplication\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\benri\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\Ben\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"

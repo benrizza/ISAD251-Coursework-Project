@@ -467,7 +467,6 @@ namespace PubApplication.Controllers
         //            {
         //                return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError());
 
-
         [HttpGet]
         public IActionResult OrderBasket() //
         {
@@ -488,38 +487,6 @@ namespace PubApplication.Controllers
                 }
             }
             return View();
-
-
-
-
-
-            //var OrderItems = HttpContext.Session.GetString("OrderItems");
-            //if (OrderItems != null)
-            //{
-            //    List<PubOrderItems> PubOrderItems;
-            //    try
-            //    {
-            //        PubOrderItems = JsonSerializer.Deserialize<List<PubOrderItems>>(OrderItems);
-            //    }
-            //    catch
-            //    {
-            //        HttpContext.Session.Remove("OrderItems"); //error: orderitems did not contian a list of pub items, reset the session
-            //        return View();
-            //    }
-
-            //    List<OrderBasketViewModel> OrderBasketList = new List<OrderBasketViewModel>();
-
-            //    foreach (PubOrderItems item in PubOrderItems)
-            //    {
-            //        PubItems PubItem = _context.GetPubItem(item.ItemId);
-            //        if (PubItem != null)
-            //        {
-            //            OrderBasketList.Add(new OrderBasketViewModel() { ItemQuantity = item.ItemQuantity, PubItem = PubItem });
-            //        }
-            //    }
-            //    return View(OrderBasketList);
-            //}
-            //return View();
         }
 
         //[HttpPost]
