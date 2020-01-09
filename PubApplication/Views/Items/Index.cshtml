@@ -35,7 +35,7 @@
 </style>
 
 
-@*---------TOASTY AREA---------*@
+@*---------TOASTY AREA---------*
 <div aria-live="polite" aria-atomic="true" style="width:100%; left:0; position: fixed; top: 0px; z-index:10">
     <!-- Position it -->
     <div class="p-2" style="position: absolute; top: 0; right: 0;" href="#" id="ToastyMessage">
@@ -113,7 +113,7 @@
             <div class="card-columns">
                 @foreach (PubItems item in PubItems.PubItemsList)
                 {
-                    var photoPath = "~/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
+                    var photoPath = "~/images/" + (item.ItemImagePath ?? "RedLionText.png");
                     <div class="card">
                         <img class="card-img-top CardImage mt-3" src="@photoPath" asp-append-version="true">
                         <div class="card-body">
@@ -157,7 +157,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('.toast').toast('show'); //show given toast message from controller - nothing will show if there is no message
+            //$('.toast').toast('show'); //show given toast message from controller - nothing will show if there is no message
 
             $('.AddOrderButton').on("click", function () {
                 var id = $(this).attr('id');
@@ -178,38 +178,3 @@
             });
     </script>
 }
-
-
-
-
-
-
-
-
-
-
-@*<div class="cotainer mt-5">
-        <div class="row">
-            @foreach (PubItems item in Model)
-            {
-                var photoPath = "~/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
-                <div class="col-md-4 mt-3 mt-md-0">
-                    <div class="card">
-                        <img class="card-img-top CardImage mt-3" src="@photoPath" alt="Card image" asp-append-version="true">
-                        <div class="card-body">
-                            <h4 class="card-title">@item.ItemName</h4>
-                            <h6 class="card-text font-weight-bold"> Price: £@item.ItemPrice.ToString() </h6>
-                            @if (item.ItemStock < 20)
-                            {
-                                <span class="card-text text-warning"> Only @item.ItemStock left! </span>
-                            }
-                            <p class="card-text"> @item.ItemDescription </p>
-                            <form method="post" asp-controller="Items" asp-action="Buy" asp-route-id="@item.ItemId">
-                                <button type="submit" class="btn btn-primary"> Add </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>*@

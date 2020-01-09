@@ -41,7 +41,10 @@ namespace PubApplication.Models
         public virtual DbSet<Get_PubOrderItemsViewModel> GetPubOrderItemsResults { get; set; }
         public virtual DbSet<Get_PubOrderViewModel> GetPubOrderResults { get; set; }
         public virtual DbSet<Get_PubUserOrderItemsViewModel> GetPubUserOrderItemsResults { get; set; }
+        public virtual DbSet<Get_ItemPriceViewModel> GetItemPriceResults { get; set; }
+
         
+
 
         //public virtual DbSet<Get_PubUserPasswordViewModel> GetPubUserPasswordResults { get; set; }
 
@@ -244,6 +247,22 @@ namespace PubApplication.Models
             return false;
         }
 
+        public bool RemoveOrderBasketItem(int OrderBasketID, int ItemID)
+        {
+            SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
+
+            Database.ExecuteSqlRaw("EXEC @outputParam=Remove_PubOrderBasketItem @OrderBasketID, @ItemID",
+                    outputParam,
+                    new SqlParameter("@OrderBasketID", OrderBasketID),
+                    new SqlParameter("@ItemID", ItemID));
+            int result = (int)@outputParam.Value;
+            if (result == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool RemovePubSession(string SessionID)
         {
             SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
@@ -432,6 +451,22 @@ namespace PubApplication.Models
             else
             {
                 return null; 
+            }
+        }
+
+
+        public Get_ItemPriceViewModel GetPubItemPrice(int ItemID, bool ItemOnSale) //get pub items - just the item name
+        {
+            var results = GetItemPriceResults.FromSqlRaw("EXEC Get_PubItemPrice @ItemID, @ItemOnSale",
+                new SqlParameter("@ItemID", ItemID),
+                new SqlParameter("@ItemOnSale", ItemOnSale)).ToList();
+            if (results.Count() > 0)
+            {
+                return results.First();
+            }
+            else
+            {
+                return null;
             }
         }
 

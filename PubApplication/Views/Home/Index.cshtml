@@ -64,10 +64,9 @@
             <div class="card">
                 @if (item != null)
                 {
+                    var photoPath = "~/images/" + (item.ItemImagePath ?? "RedLionText.png");
                     <div class="imgDiv p-2">
-                        @{ var photoPath = "/imgs/" + (item.ItemImagePath ?? "RedLionText.png");
-                        }
-                        <img src="@photoPath" class="typeImg" alt="...">
+                        <img class="typeImg" src="@photoPath" asp-append-version="true">
                     </div>
                     <div class="card-body">
                         <h4 class="card-title text-capitalize">@item.ItemName</h4>
@@ -101,7 +100,7 @@
                 else
                 {
                     <div class="imgDiv p-2">
-                        <img src="/imgs/RedLionText.png" class="typeImg">
+                        <img class="typeImg" src="~/images/RedLionText.png" asp-append-version="true">
                     </div>
                     <div class="card-body">
                         <h4 class="card-title text-danger"> No item found... </h4>
@@ -122,4 +121,7 @@
         </div>
     }
 </div>
+
+
+
 

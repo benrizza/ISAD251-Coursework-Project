@@ -64,6 +64,12 @@ namespace PubApplication.Controllers
         [HttpGet]
         public IActionResult Order(int? id)
         {
+            object data;
+            TempData.TryGetValue("ToastMessage", out data);
+            if (data != null)
+            {
+                ViewBag.Toast = JsonSerializer.Deserialize<ToastAlertViewModel>(data as string);
+            }
             if (id != null && id > 0) //check that user has given an id and that the ID given is bigger than 0 (all ids are bigger than 0)
             {
                 var Session = HttpContext.Session.GetString("PubSession"); //user must be logged in to view an order
@@ -124,6 +130,7 @@ namespace PubApplication.Controllers
                                             return View();
                                         }
                                     }
+                                    TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Error", "Error: Could not cancel order."));
                                     return RedirectToAction("Order", new { id });
                                 }
                             }
@@ -131,6 +138,7 @@ namespace PubApplication.Controllers
                     }
                 }
             }
+            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.DefaultError());
             return RedirectToAction("Index", "Home");
         }
 
@@ -161,6 +169,7 @@ namespace PubApplication.Controllers
                                 int OrderID = _context.CreateOrder(pubSession.OrderBasketId, pubSession.UserId, pubSession.SessionId);
                                 if (OrderID > 0)
                                 {
+                                    TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("New Order", "Your order has been created! ID: " + OrderID));
                                     return RedirectToAction("Order", new { id = OrderID });
                                 }
                                 else

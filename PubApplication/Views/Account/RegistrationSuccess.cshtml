@@ -1,26 +1,43 @@
-﻿@model PubUsers
-
-@{
+﻿@{
+    PubUsers Model = ViewBag.User;
+    bool LogInError = ViewBag.LogInError;
     ViewData["Title"] = "Account Created";
 }
 
+
+
+
 <div class="container">
+
+    @if (LogInError) {
     <div class="row">
         <div class="col-md-12">
-            <h3 class="display-3 text-center text-capitalize"> Hello, @Model.UserFirstName @Model.UserLastName </h3>
+            <h3 class="display-4 text-center text-warning text-capitalize"> An Error Occured: You could not be logged in. </h3>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h4 class="text-dark m-3">Registration Successful! - Your user account ID is: @Model.UserId </h4>
+    }
+
+
+    @if (Model != null)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="display-3 text-center text-capitalize"> Hello, @Model.UserFirstName @Model.UserLastName </h3>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h5 class="text-info"> You will need your User ID to login to your account in the future.</h5>
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="text-dark m-3">Registration Successful! - Your user account ID is: @Model.UserId </h4>
+            </div>
         </div>
-    </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h5 class="text-info"> You will need your User ID to login to your account in the future.</h5>
+            </div>
+        </div>
+    }
 </div>
+
 
 
 

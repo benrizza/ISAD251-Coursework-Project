@@ -80,9 +80,7 @@ namespace PubApplication.Controllers
                 }
             }
 
-
-            object data;
-            TempData.TryGetValue("ToastMessage", out data);
+            TempData.TryGetValue("ToastMessage", out object data);
             if (data != null)
             {
                 ViewBag.Toast = JsonSerializer.Deserialize<ToastAlertViewModel>(data as string);
@@ -367,6 +365,42 @@ namespace PubApplication.Controllers
         }
 
         [HttpPost]
+        public IActionResult RemoveBasketItem(int id) //add order using an ajax request and return a partial view with toast message
+        {
+            if (id > 0)
+            {
+                PubItems Item = _context.GetPubItem(id);
+                if (Item != null)
+                {
+                    string Session = HttpContext.Session.GetString("PubSession"); //store session id
+                    if (Session != null) //if a session has been created
+                    {
+                        PubSessions pubSession = _context.GetPubSession(Session); //get session info
+                        if (pubSession != null) //session exists
+                        {
+                            if (pubSession.OrderBasketId != 0)
+                            {
+                                //add item 
+                                PubOrderBasketItems basketItem = _context.GetPubOrderBasketItem(pubSession.OrderBasketId, id);
+                                if (basketItem != null)
+                                {
+                                    if (_context.RemoveOrderBasketItem(pubSession.OrderBasketId, basketItem.ItemId))
+                                    {
+                                        TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.Toast("Item Removed", String.Format("{0}x {1} has been removed from your basket", basketItem.ItemQuantity, Item.ItemName), Item.ItemImagePath));
+                                        return RedirectToAction("OrderBasket");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            TempData["ToastMessage"] = JsonSerializer.Serialize(ToastAlert.DefaultError());
+            return RedirectToAction("OrderBasket");
+        }
+
+        [HttpPost]
         public IActionResult AddOrderItemPartial(int id, int? itemQuantity) //add order using an ajax request and return a partial view with toast message
         {
             if (id > 0)
@@ -551,11 +585,12 @@ namespace PubApplication.Controllers
         //            {
         //                return PartialView("ToastMessage", ToastAlert.ItemQuantityStockError());
 
+        
+        
         [HttpGet]
         public IActionResult OrderBasket() //
         {
-            object data;
-            TempData.TryGetValue("ToastMessage", out data);
+            TempData.TryGetValue("ToastMessage", out object data);
             if (data != null)
             {
                 ViewBag.Toast = JsonSerializer.Deserialize<ToastAlertViewModel>(data as string);

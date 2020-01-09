@@ -19,6 +19,16 @@ namespace PubApplication.Models
             };
         }
 
+        public static ToastAlertViewModel Toast(string Title, string Body)
+        {
+            return new ToastAlertViewModel()
+            {
+                ToastBody = Body,
+                ToastImagePath = null,
+                ToastTitle = Title
+            };
+        }
+
         public static ToastAlertViewModel ItemQuantityStockError(string ImagePath)
         {
             return new ToastAlertViewModel() //ERROR - item could not be added to order basket

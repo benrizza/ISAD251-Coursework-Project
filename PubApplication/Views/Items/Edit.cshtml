@@ -65,42 +65,44 @@
                 </div>
                 @if (Model.ItemExistingImagePath != null)
                 {
-                    <div class="col-md-9">
-                        <image asp-append-version="true" src="/imgs/@Model.ItemExistingImagePath" class="img-responsive existingImg"> </image>
+                        var photoPath = "~/images/" + (Model.ItemExistingImagePath ?? "RedLionText.png");
+                    
+                        <div class="col-md-9">
+                            <img asp-append-version="true" src="@photoPath" class="img-responsive existingImg"> </img>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="col-md-9">
+                            <h6 class="font-weight-bold"> No Existing Image </h6>
+                        </div>
+                        }
                     </div>
-                }
-                else
-                {
-                    <div class="col-md-9">
-                        <h6 class="font-weight-bold"> No Existing Image </h6>
-                    </div>
-                }
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label asp-for="ItemImage"></label>
-                        <div class="custom-file">
-                            <input asp-for="ItemImage" class="form-control custom-file-input" />
-                            <label class="custom-file-label">Choose Image...</label>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="ItemImage"></label>
+                                <div class="custom-file">
+                                    <input asp-for="ItemImage" class="form-control custom-file-input" />
+                                    <label class="custom-file-label">Choose Image...</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label asp-for="ItemDescription"></label>
-                        <textarea asp-for="ItemDescription" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="ItemDescription" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="ItemDescription"></label>
+                                <textarea asp-for="ItemDescription" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="ItemDescription" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button type="submit" class="btn btn-primary m-2">Edit Item</button>
+                        <a asp-controller="Items" asp-action="Index" class="btn btn-secondary m-2"> Cancel </a>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <button type="submit" class="btn btn-primary m-2">Edit Item</button>
-                <a asp-controller="Items" asp-action="Index" class="btn btn-secondary m-2"> Cancel </a>
-            </div>
-        </div>
 
         @section Scripts {
             <script>

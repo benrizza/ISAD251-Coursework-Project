@@ -17,7 +17,7 @@
     }
 </style>
 
-@*---------TOASTY AREA---------*@
+@*---------TOASTY AREA---------
 <div aria-live="polite" aria-atomic="true" style="width:100%; left:0; position: fixed; top: 0px; z-index:10">
     <!-- Position it -->
     <div class="p-2" style="position: absolute; top: 0; right: 0;" href="#" id="ToastyMessage">
@@ -26,7 +26,7 @@
             await Html.RenderPartialAsync("ToastMessage", (ToastAlertViewModel)ViewBag.Toast);
         }
     </div>
-</div>
+</div> *@
 
 <div class="container">
     <div class="row p-2">
@@ -39,19 +39,19 @@
         decimal totalcost = 0;
         foreach(OrderBasketViewModel item in Model)
         {
-            totalcost =+ (decimal)item.ItemQuantity * item.PubItem.ItemPrice;
+            totalcost = totalcost + ((decimal)item.ItemQuantity * item.PubItem.ItemPrice);
         }
         <div class="row">
             <div class="col-12 text-right">
                 <h4 class="font-weight-bold"> Total Price: £@totalcost.ToString("F") </h4>
-                <form asp-action="Order" asp-controller="Orders">
+                <form method="post" asp-action="Order" asp-controller="Orders">
                     <button class="btn btn-warning"> Confirm Order </button>
                 </form>
             </div>
         </div>
         @for (int i = 0; i < Model.Count; i++)
         {
-            var photoPath = "~/imgs/" + (Model[i].PubItem.ItemImagePath ?? "RedLionText.png");
+            var photoPath = "~/images/" + (Model[i].PubItem.ItemImagePath ?? "RedLionText.png");
             var maxOrder = 0;
             if (Model[i].PubItem.ItemStock < GlobalConstants.MaxItemsPerOrder)
             {
@@ -100,7 +100,8 @@
                             }
                             <div class="col-md-4">
                                 <div class="card-body">
-                                    <form method="post" asp-controller="Items" asp-action="RemoveOrderItem" asp-route-id="@i">
+                                    <form method="post" asp-controller="Items" asp-action="RemoveBasketItem">
+                                        <input type="hidden" name="id" value="@Model[i].PubItem.ItemId"/>
                                         @*id is equal to index in table*@
                                         <div class="text-right">
                                             <h5 class="font-weight-bold m-auto p-2 w-auto d-inline-block"> Total Price: £@totalprice</h5>
@@ -132,7 +133,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('.toast').toast('show'); //show given toast message from controller - nothing will show if there is no message
+            //$('.toast').toast('show'); //show given toast message from controller - nothing will show if there is no message
 
             function UpdateItemQuantity(id, quantity) {
                 var postData = {

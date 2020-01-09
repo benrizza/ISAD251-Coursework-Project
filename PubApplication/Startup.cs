@@ -11,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 using PubApplication.Models;
 using Microsoft.EntityFrameworkCore;
 using PubApplication.Controllers;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace PubApplication
 {
@@ -65,6 +67,8 @@ namespace PubApplication
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapControllers();
             });
         }
     }
