@@ -731,7 +731,7 @@ namespace PubApplication.Controllers
                                 {
                                     if (model.ItemExistingImagePath != null)
                                     {
-                                        string existingFilePath = Path.Combine(webHostEnvironment.WebRootPath, "imgs", model.ItemExistingImagePath);
+                                        string existingFilePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ItemExistingImagePath);
                                         System.IO.File.Delete(existingFilePath);
                                     }
                                     EditedItem.ItemImagePath = ProcessUploadedFile(model);
@@ -762,7 +762,7 @@ namespace PubApplication.Controllers
             string UniqueFileName = null;
             if (!(model.ItemImage == null))
             {
-                string imgsFolder = Path.Combine(webHostEnvironment.WebRootPath, "imgs");
+                string imgsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
                 UniqueFileName = Guid.NewGuid().ToString() + "_" + model.ItemImage.FileName; //class that can create a string of guarenteed unique characters (an unique id)
                 string FilePath = Path.Combine(imgsFolder, UniqueFileName);
                 using var fileStream = new FileStream(FilePath, FileMode.Create);

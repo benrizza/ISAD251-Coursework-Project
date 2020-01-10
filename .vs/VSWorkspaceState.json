@@ -4,6 +4,7 @@
     "\\PubApplication",
     "\\PubApplication\\Controllers",
     "\\PubApplication\\Models",
+    "\\PubApplication\\Models\\Enum",
     "\\PubApplication\\Views",
     "\\PubApplication\\Views\\Home",
     "\\PubApplication\\Views\\Items",
