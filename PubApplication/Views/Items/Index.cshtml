@@ -167,7 +167,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "/Items/AddOrderItemPartial",
+                    url: "Items/AddOrderItemPartial",
                     data: itemID,
                     success: function (data) {
                             $("#ToastyMessage").html(data);
