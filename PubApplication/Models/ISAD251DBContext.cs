@@ -499,26 +499,11 @@ namespace PubApplication.Models
             }
         }
 
-        //public List<PubItems> GetPubItems(string ItemName) //get pub items - just the item name
-        //{
-        //    var results = GetPubItemsResults.FromSqlRaw("EXEC Get_PubItems @ItemName",
-        //        new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value)).ToList();
-        //    return ConvertPubItemResultsToPubItems(results);
-        //}
-
-        //public List<PubItems> GetPubItems(string ItemName, ItemTypes TypeOfItem) //get pub items - item type and name
-        //{
-        //    var results = GetPubItemsResults.FromSqlRaw("EXEC Get_PubItems @ItemName, @ItemType",
-        //        new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value),
-        //        new SqlParameter("@ItemType", TypeOfItem.ToString())).ToList();
-        //    return ConvertPubItemResultsToPubItems(results);
-        //}
-
         public PubItemsViewModel GetPubItems(string ItemName, Boolean ItemOnSale, int PageNumber) //get pub items - if on sale and name
         {
             SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
 
-            var results = GetPubItemsResults.FromSqlRaw("EXEC @outputParam=Get_PubItems_OnSaleFilter @ItemName, @ItemOnSale, @PageNumber, @ItemsPerPage",
+            var results = GetPubItemsResults.FromSqlRaw("EXEC @outputParam=Get_PubItems @ItemName, @ItemOnSale, @PageNumber, @ItemsPerPage",
                 outputParam,
                 new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value),
                 new SqlParameter("@PageNumber", PageNumber),
@@ -531,7 +516,7 @@ namespace PubApplication.Models
         {
             SqlParameter @outputParam = new SqlParameter { ParameterName = "@outputParam", SqlDbType = SqlDbType.Int, Direction = ParameterDirection.Output };
 
-            var results = GetPubItemsResults.FromSqlRaw("EXEC @outputParam=Get_PubItems_OnSaleFilter @ItemName, @ItemOnSale, @PageNumber, @ItemsPerPage, @ItemType", //fetch pub items, output param returns the total number of results from the query
+            var results = GetPubItemsResults.FromSqlRaw("EXEC @outputParam=Get_PubItems @ItemName, @ItemOnSale, @PageNumber, @ItemsPerPage, @ItemType", //fetch pub items, output param returns the total number of results from the query
                 outputParam,
                 new SqlParameter("@ItemName", (object)ItemName ?? DBNull.Value),
                 new SqlParameter("@PageNumber", PageNumber),
@@ -540,64 +525,6 @@ namespace PubApplication.Models
                 new SqlParameter("@ItemType", TypeOfItem.ToString())).ToList();
             return new PubItemsViewModel { PubItemsList = ConvertPubItemResultsToPubItems(results), RowCount = (int)@outputParam.Value };
         }
-
-        //public string GetPubUserPassword(int UserId)
-        //{
-        //    var results = GetPubUserPasswordResults.FromSqlRaw("EXEC Get_PubUserPassword @UserID",
-        //            new SqlParameter("@UserID", UserId));
-        //    if (results.Count() > 0)
-        //    {
-        //        string output = results.First().UserPassword.ToString(); //If results are returned then the user has been found. As the user is unique, their will only be one result so the password is fetched from the first (only) result.
-        //        return output;
-        //    }
-        //    else
-        //    {
-        //        return null; //no results returned - user ID dosen't exist in DB so give nothing.
-        //    }  
-        //}
-
-        //public string Add_PubUser(RegisterViewModel model)
-        //{
-        //    var results = Add_PubUserResults.FromSqlRaw("EXEC Add_PubUser @UserFirstName, @UserLastName, @UserAccessRank, @UserPassword",
-        //            new SqlParameter("@UserFirstName", model.UserFirstName.ToString()),
-        //            new SqlParameter("@UserLastName", model.UserLastName.ToString()),
-        //            new SqlParameter("@UserAccessRank", UserAccessRanks.Customer.ToString()),
-        //            new SqlParameter("@UserPassword", model.UserPassword.ToString())).ToList();
-
-        //    System.Diagnostics.Debug.WriteLine(results.First().UserID);
-
-        //    return results;
-        //} */
-
-        //EXAMPLE
-
-        /*public IEnumerable<Add_PubUserViewModel> Add_PubUser(RegisterViewModel model)
-        {
-            //var outputParam = new SqlParameter{ParameterName = "@Output", SqlDbType = SqlDbType.Bit, Direction = ParameterDirection.Output};
-
-            //string sqlQuery = "Exec [ExampleStoredProc] @firstId, @outputBit OUTPUT";
-            //var results = Add_PubUserResults.FromSqlRaw("EXEC Add_PubUser @UserFirstName, @UserLastName, @UserAccessRank, @UserPassword",
-            //        new SqlParameter("@UserFirstName", model.UserFirstName.ToString()),
-            //        new SqlParameter("@UserLastName", model.UserLastName.ToString()),
-            //        new SqlParameter("@UserAccessRank", UserAccessRanks.Customer.ToString()),
-            //        new SqlParameter("@UserPassword", model.UserPassword.ToString()),
-            //        outputParam);
-
-            //var output = outputParam.Value;
-            //System.Diagnostics.Debug.WriteLine(output);
-
-            //return results;
-
-            var results = Add_PubUserResults.FromSqlRaw("EXEC Add_PubUser @UserFirstName, @UserLastName, @UserAccessRank, @UserPassword",
-                    new SqlParameter("@UserFirstName", model.UserFirstName.ToString()),
-                    new SqlParameter("@UserLastName", model.UserLastName.ToString()),
-                    new SqlParameter("@UserAccessRank", UserAccessRanks.Customer.ToString()),
-                    new SqlParameter("@UserPassword", model.UserPassword.ToString())).ToList();
-
-            System.Diagnostics.Debug.WriteLine(results.First().UserID);
-
-            return results;
-        } */
 
         private static List<PubItems> ConvertPubItemResultsToPubItems(List<Get_PubItemsViewModel> results)
         {
@@ -631,14 +558,6 @@ namespace PubApplication.Models
                 ItemType = PubItemType.GetItemType(item.ItemType)
             };
         }
-
-
-
-
-
-
-
-
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

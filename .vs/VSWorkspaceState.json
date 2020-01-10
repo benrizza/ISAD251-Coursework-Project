@@ -7,7 +7,8 @@
     "\\PubApplication\\Views",
     "\\PubApplication\\Views\\Home",
     "\\PubApplication\\Views\\Items",
-    "\\PubApplication\\Views\\Shared"
+    "\\PubApplication\\Views\\Shared",
+    "\\PubApplication\\wwwroot"
   ],
   "SelectedNode": "\\PubApplication\\PubApplication.sln",
   "PreviewInSolutionExplorer": false

@@ -180,6 +180,4 @@ C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\netcoreapp3.0\Razor\Views\Orders\Index.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\netcoreapp3.0\Razor\Views\Orders\Order.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\netcoreapp3.0\Razor\Views\Shared\Components\LoggedInUser\Default.cshtml.g.cs
-C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\netcoreapp3.0\Razor\Views\Shared\LoginDropdown.cshtml.g.cs
 C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\netcoreapp3.0\Razor\Views\Shared\ToastMessage.cshtml.g.cs
-C:\Users\Ben\Source\Repos\ISAD251-Coursework-Project\PubApplication\obj\Release\netcoreapp3.0\Razor\Views\Shared\_Layout_WithLogin.cshtml.g.cs

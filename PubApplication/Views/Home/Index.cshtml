@@ -40,6 +40,10 @@
         padding: .75rem 1.25rem;
     }
 
+    .title-text {
+        border-bottom: 4px solid;
+    }
+
     .warning {
         height: 40%;
         font-size: large;
@@ -52,7 +56,7 @@
 <div class="container">
     <div class="row">
         <div class="col-12 p-5 text-center">
-            <a class="display-1 text-dark text-decoration-none" asp-controller="Items" asp-action="Index"> Order Menu </a>
+            <a class="display-1 text-dark border-dark title-text text-decoration-none" asp-controller="Items" asp-action="Index"> View Menu </a>
         </div>
     </div>
     @if (Items != null)
@@ -87,14 +91,14 @@
                     </div>
                     <div class="card-buy">
                         <form method="post" asp-controller="Items" asp-action="AddOrderItem">
-                            <button type="submit" class="btn btn-secondary"> Add </button>
+                            <button type="submit" class="btn btn-secondary p-2"> Add </button>
                             <label asp-for="ItemQuantity"></label>
                             <input min="1" max="@item.ItemStock" class="form-control w-auto d-inline" asp-for="ItemQuantity" />
                             <input hidden asp-for="ItemId" value="@item.ItemId" />
                         </form>
                     </div>
                     <div class="card-footer bg-dark deal">
-                        <a asp-controller="Items" asp-action="Index" asp-route-ItemType="@item.ItemType" class="display-4 text-white"> Order A @item.ItemType.ToString() </a>
+                        <a asp-controller="Items" asp-action="Index" asp-route-ItemType="@item.ItemType" class="display-4 text-white"> View @item.ItemType.ToString()s </a>
                     </div>
                 }
                 else
