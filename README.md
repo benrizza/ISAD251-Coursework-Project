@@ -4,8 +4,8 @@
 - Order Basket Partial View - Not implemented pretend order basket has been created.
 - Order Basket prices do not update when you change quantity (realtime JS updating not implemented) - refresing page will update prices.
 - Items page allow user to select quantity rather then just being able to add one of an item each time.
-- TO DO: Where you can add an item to basket - show the quantity of the item you already have in basket.
-- TO DO: Order List shows the User ID of each order.
+- Where you can add an item to basket - show the quantity of the item you already have in basket.
+- Order List shows the User ID of each order.
 
 ## Application Fact Sheet
 #### Registering Accounts
