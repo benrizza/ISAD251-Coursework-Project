@@ -2,7 +2,8 @@
 
 YouTube Video Link: https://youtu.be/6EmMUxlsEzg
 
-**Image file uploading not working on hosted server folder - not sure why.
+
+*Item Image file uploading not working on hosted server folder - not sure why. Can still create an item without uploading an image.
 
 ## To-Do List:
 - Order Basket Partial View - Not implemented pretend order basket has been created.
